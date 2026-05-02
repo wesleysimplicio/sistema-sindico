@@ -1,0 +1,6 @@
+.DS_Store
+.env
+/storage/logs/*.log
+/vendor/
+/node_modules/
+docs/print/_sheet_*.jpg
