@@ -47,15 +47,32 @@ abstract class BaseRepository
             }
             $sql .= ' WHERE ' . implode(' AND ', $clauses);
         }
-        $sql .= " ORDER BY $orderBy LIMIT " . (int) $limit;
+        $sql .= ' ORDER BY ' . self::sanitizeOrderBy($orderBy) . ' LIMIT ' . (int) $limit;
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
+    private static function sanitizeOrderBy(string $orderBy): string
+    {
+        $parts = preg_split('/\s+/', trim($orderBy)) ?: [];
+        if (count($parts) === 0 || count($parts) > 2) {
+            throw new InvalidArgumentException('Invalid ORDER BY: ' . $orderBy);
+        }
+        self::assertColumnName($parts[0]);
+        $dir = strtoupper($parts[1] ?? 'ASC');
+        if ($dir !== 'ASC' && $dir !== 'DESC') {
+            throw new InvalidArgumentException('Invalid ORDER BY direction: ' . $dir);
+        }
+        return $parts[0] . ' ' . $dir;
+    }
+
     public function create(array $data): int
     {
         $cols = array_keys($data);
+        foreach ($cols as $col) {
+            self::assertColumnName((string) $col);
+        }
         $placeholders = array_map(fn($c) => ":$c", $cols);
         $sql = "INSERT INTO {$this->table} (" . implode(',', $cols) . ') VALUES (' . implode(',', $placeholders) . ')';
         $stmt = $this->pdo->prepare($sql);

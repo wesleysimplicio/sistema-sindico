@@ -87,14 +87,21 @@ $router->group([ApiAuth::class], function ($router): void {
     $router->get('/api/condominium/{c}/porter-notes',                [PorterNoteController::class, 'index']);
     $router->post('/api/condominium/{c}/porter-notes',               [PorterNoteController::class, 'store']);
 
-    $router->get('/api/notices',              [NoticeController::class, 'index']);
-    $router->get('/api/notices/{id}',         [NoticeController::class, 'show']);
-    $router->post('/api/notices',             [NoticeController::class, 'store']);
+    $router->get('/api/notices',                       [NoticeController::class, 'index']);
+    $router->get('/api/notices/unread-count',          [NoticeController::class, 'unreadCount']);
+    $router->get('/api/notices/{id}',                  [NoticeController::class, 'show']);
+    $router->post('/api/notices',                      [NoticeController::class, 'store']);
+    $router->post('/api/notices/{id}/attachments',     [NoticeController::class, 'addAttachment']);
+    $router->post('/api/notices/{id}/read',            [NoticeController::class, 'markRead']);
 
-    $router->get('/api/maintenance',          [MaintenanceController::class, 'index']);
-    $router->get('/api/maintenance/mine',     [MaintenanceController::class, 'mine']);
-    $router->post('/api/maintenance',         [MaintenanceController::class, 'store']);
-    $router->patch('/api/maintenance/{id}',   [MaintenanceController::class, 'updateStatus']);
+    $router->get('/api/maintenance',                   [MaintenanceController::class, 'index']);
+    $router->get('/api/maintenance/mine',              [MaintenanceController::class, 'mine']);
+    $router->get('/api/maintenance/{id}',              [MaintenanceController::class, 'show']);
+    $router->post('/api/maintenance',                  [MaintenanceController::class, 'store']);
+    $router->patch('/api/maintenance/{id}',            [MaintenanceController::class, 'updateStatus']);
+    $router->post('/api/maintenance/{id}/attachments', [MaintenanceController::class, 'addAttachment']);
+    $router->get('/api/maintenance/{id}/comments',     [MaintenanceController::class, 'comments']);
+    $router->post('/api/maintenance/{id}/comments',    [MaintenanceController::class, 'addComment']);
 
     $router->get('/api/payments',             [PaymentController::class, 'index']);
     $router->get('/api/payments/mine',        [PaymentController::class, 'mine']);
@@ -125,10 +132,11 @@ $router->group([ApiAuth::class], function ($router): void {
     $router->post('/api/login-invitations',        [LoginInvitationController::class, 'store']);
     $router->delete('/api/login-invitations/{id}', [LoginInvitationController::class, 'destroy']);
 
-    $router->get('/api/deliveries',           [DeliveryController::class, 'index']);
-    $router->get('/api/deliveries/mine',      [DeliveryController::class, 'mine']);
-    $router->post('/api/deliveries',          [DeliveryController::class, 'store']);
-    $router->patch('/api/deliveries/{id}/withdraw', [DeliveryController::class, 'withdraw']);
+    $router->get('/api/deliveries',                  [DeliveryController::class, 'index']);
+    $router->get('/api/deliveries/mine',             [DeliveryController::class, 'mine']);
+    $router->get('/api/deliveries/{id}',             [DeliveryController::class, 'show']);
+    $router->post('/api/deliveries',                 [DeliveryController::class, 'store']);
+    $router->patch('/api/deliveries/{id}/withdraw',  [DeliveryController::class, 'withdraw']);
 
     $router->get('/api/common-areas',         [CommonAreaController::class, 'index']);
 
@@ -137,7 +145,15 @@ $router->group([ApiAuth::class], function ($router): void {
     $router->post('/api/bookings',            [BookingController::class, 'store']);
     $router->patch('/api/bookings/{id}',      [BookingController::class, 'updateStatus']);
 
-    $router->get('/api/documents',            [DocumentController::class, 'index']);
+    $router->get('/api/documents',                       [DocumentController::class, 'index']);
+    $router->get('/api/documents/{id}',                  [DocumentController::class, 'show']);
+    $router->post('/api/documents',                      [DocumentController::class, 'store']);
+    $router->get('/api/documents/{id}/signed-url',       [DocumentController::class, 'signedUrl']);
+    $router->get('/api/documents/{id}/download',         [DocumentController::class, 'download']);
+    $router->get('/api/document-folders',                [DocumentController::class, 'folderIndex']);
+    $router->get('/api/document-folders/{id}',           [DocumentController::class, 'folderShow']);
+    $router->post('/api/document-folders',               [DocumentController::class, 'folderStore']);
+    $router->delete('/api/document-folders/{id}',        [DocumentController::class, 'folderDestroy']);
 
     $router->get('/api/messages',             [MessageController::class, 'index']);
     $router->get('/api/messages/inbox',       [MessageController::class, 'inbox']);

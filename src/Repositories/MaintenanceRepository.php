@@ -8,7 +8,7 @@ final class MaintenanceRepository extends BaseRepository
 {
     protected string $table = 'maintenance_requests';
 
-    public function listByCondominium(int $condominiumId, ?string $status = null): array
+    public function listByCondominium(int $condominiumId, ?string $status = null, ?string $priority = null, ?int $unitId = null): array
     {
         $sql = 'SELECT m.*, u.name AS requester_name, un.block, un.number AS unit_number
                 FROM maintenance_requests m
@@ -20,19 +20,39 @@ final class MaintenanceRepository extends BaseRepository
             $sql .= ' AND m.status = :status';
             $params['status'] = $status;
         }
+        if ($priority !== null) {
+            $sql .= ' AND m.priority = :priority';
+            $params['priority'] = $priority;
+        }
+        if ($unitId !== null) {
+            $sql .= ' AND m.unit_id = :uid';
+            $params['uid'] = $unitId;
+        }
         $sql .= ' ORDER BY m.created_at DESC';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function listByUser(int $userId): array
+    public function listByUser(int $userId, int $condominiumId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT * FROM maintenance_requests WHERE requester_id = :uid ORDER BY created_at DESC'
+            'SELECT * FROM maintenance_requests
+             WHERE requester_id = :uid AND condominium_id = :cid
+             ORDER BY created_at DESC'
         );
-        $stmt->execute(['uid' => $userId]);
+        $stmt->execute(['uid' => $userId, 'cid' => $condominiumId]);
         return $stmt->fetchAll();
+    }
+
+    public function findInCondo(int $id, int $condominiumId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM maintenance_requests WHERE id = :id AND condominium_id = :cid LIMIT 1'
+        );
+        $stmt->execute(['id' => $id, 'cid' => $condominiumId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
     }
 
     public function setStatus(int $id, string $status): bool
