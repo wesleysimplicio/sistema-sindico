@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Jwt;
 use App\Core\Request;
 use App\Core\Response;
+use App\Repositories\ApiTokenRepository;
 use App\Repositories\UserRepository;
 
 final class ApiAuth
@@ -30,6 +31,16 @@ final class ApiAuth
             Response::error('Usuario nao encontrado', 401);
             return false;
         }
+
+        $jti = isset($payload['jti']) ? (string) $payload['jti'] : null;
+        if ($jti !== null && $jti !== '') {
+            if (!(new ApiTokenRepository())->isActive($jti)) {
+                Response::error('Sessao revogada.', 401);
+                return false;
+            }
+            Auth::setJti($jti);
+        }
+
         $user['condominium_id'] = $payload['cid'] ?? $user['condominium_id'];
         $user['role']           = $payload['role'] ?? $user['role'];
         $user['unit_id']        = $payload['uid']  ?? $user['unit_id'];

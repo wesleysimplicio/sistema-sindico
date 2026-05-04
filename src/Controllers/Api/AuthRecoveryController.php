@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers\Api;
 
+use App\Core\PasswordPolicy;
 use App\Core\Request;
 use App\Core\Response;
 use App\Repositories\PasswordHistoryRepository;
@@ -105,8 +106,14 @@ final class AuthRecoveryController
             Response::error('reset_token e new_password sao obrigatorios.', 422);
             return;
         }
-        if (strlen($newPassword) < self::MIN_PASSWORD_LEN) {
-            Response::error('Senha deve ter ao menos ' . self::MIN_PASSWORD_LEN . ' caracteres.', 422);
+        $violations = PasswordPolicy::violations($newPassword);
+        if ($violations !== []) {
+            Response::error(
+                'Senha nao atende aos requisitos.',
+                422,
+                ['violations' => $violations, 'policy' => PasswordPolicy::describe()],
+                'weak_password'
+            );
             return;
         }
 

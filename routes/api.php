@@ -18,6 +18,7 @@ use App\Controllers\Api\BookingController;
 use App\Controllers\Api\CameraController;
 use App\Controllers\Api\CommonAreaController;
 use App\Controllers\Api\CondominiumController;
+use App\Controllers\Api\ContactController;
 use App\Controllers\Api\ContractorController;
 use App\Controllers\Api\DashboardController;
 use App\Controllers\Api\DeliveryController;
@@ -32,12 +33,17 @@ use App\Controllers\Api\MaintenanceController;
 use App\Controllers\Api\MembershipController;
 use App\Controllers\Api\MessageController;
 use App\Controllers\Api\NoticeController;
+use App\Controllers\Api\NotificationController;
+use App\Controllers\Api\NotificationPreferenceController;
 use App\Controllers\Api\PaymentController;
 use App\Controllers\Api\PorterNoteController;
 use App\Controllers\Api\ProfileController;
 use App\Controllers\Api\ResidentController;
+use App\Controllers\Api\SecurityController;
+use App\Controllers\Api\SystemController;
 use App\Controllers\Api\UnitController;
 use App\Controllers\Api\UnitOverviewController;
+use App\Controllers\Api\UserDeviceController;
 use App\Controllers\Api\VehicleController;
 use App\Controllers\Api\VisitorController;
 use App\Middleware\ApiAuth;
@@ -53,6 +59,10 @@ $router->post('/api/auth/invitations/{token}/accept', [LoginInvitationController
 
 // Sprint 5 — public webhook (HMAC-validated, NO ApiAuth)
 $router->post('/api/webhooks/access-event', [AccessWebhookController::class, 'ingest']);
+
+// Sprint 6 — public system info (no auth)
+$router->get('/api/system/version',     [SystemController::class, 'version']);
+$router->get('/api/system/permissions', [SystemController::class, 'permissions']);
 
 $router->group([ApiAuth::class], function ($router): void {
     $router->post('/api/auth/logout', [AuthController::class, 'logout']);
@@ -189,4 +199,33 @@ $router->group([ApiAuth::class], function ($router): void {
 
     $router->get('/api/incident-types',               [IncidentController::class, 'types']);
     $router->post('/api/incident-types',              [IncidentController::class, 'storeType']);
+
+    // Sprint 6 — notifications feed
+    $router->get('/api/notifications',                 [NotificationController::class, 'index']);
+    $router->get('/api/notifications/unread-count',    [NotificationController::class, 'unreadCount']);
+    $router->post('/api/notifications/{id}/read',      [NotificationController::class, 'read']);
+    $router->post('/api/notifications/read-all',       [NotificationController::class, 'readAll']);
+
+    // Sprint 6 — notification preferences (channel x event matrix)
+    $router->get('/api/notification-preferences',      [NotificationPreferenceController::class, 'index']);
+    $router->put('/api/notification-preferences',      [NotificationPreferenceController::class, 'update']);
+
+    // Sprint 6 — push devices (FCM)
+    $router->get('/api/devices',         [UserDeviceController::class, 'index']);
+    $router->post('/api/devices',        [UserDeviceController::class, 'store']);
+    $router->delete('/api/devices/{id}', [UserDeviceController::class, 'destroy']);
+
+    // Sprint 6 — security (2FA + sessions)
+    $router->get('/api/settings/security',                 [SecurityController::class, 'status']);
+    $router->post('/api/settings/security/2fa/setup',      [SecurityController::class, 'setup2fa']);
+    $router->post('/api/settings/security/2fa/enable',     [SecurityController::class, 'enable2fa']);
+    $router->post('/api/settings/security/2fa/disable',    [SecurityController::class, 'disable2fa']);
+    $router->get('/api/settings/sessions',                 [SecurityController::class, 'listSessions']);
+    $router->delete('/api/settings/sessions/{id}',         [SecurityController::class, 'revokeSession']);
+
+    // Sprint 6 — contact form + sindico inbox
+    $router->post('/api/contact',                  [ContactController::class, 'store']);
+    $router->get('/api/contact-messages',          [ContactController::class, 'index']);
+    $router->get('/api/contact-messages/{id}',     [ContactController::class, 'show']);
+    $router->patch('/api/contact-messages/{id}',   [ContactController::class, 'update']);
 });
