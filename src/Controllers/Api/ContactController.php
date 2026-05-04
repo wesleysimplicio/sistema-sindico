@@ -59,10 +59,10 @@ final class ContactController
         ]);
 
         $sindicos = (new UserRepository())->listByCondominium($cid, 'sindico');
-        $notif = new NotificationRepository();
-        foreach ($sindicos as $s) {
-            $notif->push(
-                (int) $s['id'],
+        $sindicoIds = array_map(static fn($s) => (int) $s['id'], $sindicos);
+        if ($sindicoIds !== []) {
+            (new NotificationRepository())->pushBulk(
+                $sindicoIds,
                 $cid,
                 'contact',
                 'Nova mensagem: ' . substr($subject, 0, 80),

@@ -9,6 +9,7 @@ use App\Core\Jwt;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Totp;
+use App\Middleware\RateLimit;
 use App\Repositories\ApiTokenRepository;
 use App\Repositories\UserRepository;
 
@@ -24,9 +25,21 @@ final class AuthController
             return;
         }
 
+        // Rate limit by IP+email to slow credential stuffing.
+        if (!RateLimit::enforce('login', 10, 900, RateLimit::ipKey(strtolower(trim($email))))) {
+            return;
+        }
+
         $repo = new UserRepository();
         $user = $repo->findByEmail($email);
-        if ($user === null || !password_verify($password, (string) $user['password_hash'])) {
+        if ($user === null) {
+            // Constant-time-ish: run a dummy password_verify so missing-user and wrong-password
+            // flows take comparable wall time (mitigate user enumeration via timing).
+            password_verify($password, '$2y$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidi.');
+            Response::error('Credenciais invalidas.', 401);
+            return;
+        }
+        if (!password_verify($password, (string) $user['password_hash'])) {
             Response::error('Credenciais invalidas.', 401);
             return;
         }
@@ -38,6 +51,9 @@ final class AuthController
                     'twofa_required' => true,
                     'message'        => 'Informe o codigo do app autenticador.',
                 ]);
+                return;
+            }
+            if (!RateLimit::enforce('twofa-verify', 5, 900, RateLimit::ipKey(strtolower(trim($email))))) {
                 return;
             }
             if (!Totp::verify((string) $user['totp_secret'], $code)) {

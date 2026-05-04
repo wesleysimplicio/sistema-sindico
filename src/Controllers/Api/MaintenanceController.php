@@ -7,6 +7,7 @@ namespace App\Controllers\Api;
 use App\Core\Auth;
 use App\Core\Request;
 use App\Core\Response;
+use App\Core\StoragePath;
 use App\Repositories\AuditLogRepository;
 use App\Repositories\MaintenanceAttachmentRepository;
 use App\Repositories\MaintenanceCommentRepository;
@@ -174,6 +175,10 @@ final class MaintenanceController
         $filePath = trim((string) Request::input('file_path', ''));
         if ($filePath === '') {
             Response::error('file_path obrigatorio.', 422);
+            return;
+        }
+        if (!StoragePath::isSafeRelative($filePath)) {
+            Response::error('file_path invalido.', 422);
             return;
         }
         $aid = (new MaintenanceAttachmentRepository())->add($id, [

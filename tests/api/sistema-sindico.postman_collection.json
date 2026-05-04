@@ -1,0 +1,268 @@
+{
+  "info": {
+    "name": "Sistema Sindico — API regression",
+    "_postman_id": "ssind-regression-001",
+    "description": "Newman regression suite covering auth, units, residents, notices, maintenance, deliveries, visitors, contact + system endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "email",   "value": "admin@sindico.local" },
+    { "key": "password","value": "senha123" },
+    { "key": "token",   "value": "" },
+    { "key": "noticeId","value": "" }
+  ],
+  "item": [
+    {
+      "name": "00 — Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/health" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "pm.test('ok flag', () => pm.expect(pm.response.json()).to.have.property('ok', true));"
+      ] } }]
+    },
+    {
+      "name": "01 — System version (public)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/system/version?platform=ios&current=0.0.1" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "const j = pm.response.json();",
+        "pm.test('version field', () => pm.expect(j).to.have.property('version'));",
+        "pm.test('update_required defined', () => pm.expect(j).to.have.property('update_required'));"
+      ] } }]
+    },
+    {
+      "name": "02 — System permissions (public)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/system/permissions" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "pm.test('permissions array', () => pm.expect(pm.response.json().permissions).to.be.an('array').that.is.not.empty);"
+      ] } }]
+    },
+    {
+      "name": "03 — Login (admin)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"email\":\"{{email}}\",\"password\":\"{{password}}\"}" },
+        "url": "{{baseUrl}}/api/auth/login"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "const j = pm.response.json();",
+        "pm.test('token present', () => pm.expect(j.token).to.be.a('string').and.have.length.greaterThan(20));",
+        "pm.collectionVariables.set('token', j.token);"
+      ] } }]
+    },
+    {
+      "name": "04 — Login wrong password (negative)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"email\":\"{{email}}\",\"password\":\"wrong\"}" },
+        "url": "{{baseUrl}}/api/auth/login"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('401', () => pm.response.to.have.status(401));"
+      ] } }]
+    },
+    {
+      "name": "05 — Me (auth required)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/auth/me"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "pm.test('user payload', () => pm.expect(pm.response.json().user).to.have.property('id'));"
+      ] } }]
+    },
+    {
+      "name": "06 — Me unauthenticated (negative)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/auth/me" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('401', () => pm.response.to.have.status(401));"
+      ] } }]
+    },
+    {
+      "name": "07 — List units",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/units"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "pm.test('array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+      ] } }]
+    },
+    {
+      "name": "08 — List residents",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/residents"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));"
+      ] } }]
+    },
+    {
+      "name": "09 — List notices",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/notices"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "const arr = pm.response.json();",
+        "pm.test('array', () => pm.expect(arr).to.be.an('array'));",
+        "if (arr.length > 0) pm.collectionVariables.set('noticeId', String(arr[0].id));"
+      ] } }]
+    },
+    {
+      "name": "10 — Create notice",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"title\":\"Newman regression notice\",\"body\":\"Created by Newman.\",\"category\":\"aviso\",\"scope\":\"all\"}" },
+        "url": "{{baseUrl}}/api/notices"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201/200', () => pm.expect([200,201]).to.include(pm.response.code));",
+        "const j = pm.response.json();",
+        "if (j.id) pm.collectionVariables.set('noticeId', String(j.id));"
+      ] } }]
+    },
+    {
+      "name": "11 — Get notice by id",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/notices/{{noticeId}}"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "pm.test('id matches', () => pm.expect(String(pm.response.json().id)).to.eql(pm.collectionVariables.get('noticeId')));"
+      ] } }]
+    },
+    {
+      "name": "12 — Notices unread-count",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/notices/unread-count"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));"
+      ] } }]
+    },
+    {
+      "name": "13 — List maintenance",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/maintenance"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));"
+      ] } }]
+    },
+    {
+      "name": "14 — List deliveries",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/deliveries"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));"
+      ] } }]
+    },
+    {
+      "name": "15 — List visitors",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/visitors"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));"
+      ] } }]
+    },
+    {
+      "name": "16 — Notifications feed",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/notifications"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));"
+      ] } }]
+    },
+    {
+      "name": "17 — Notification preferences GET",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/notification-preferences"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));"
+      ] } }]
+    },
+    {
+      "name": "18 — Security status",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/settings/security"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "pm.test('twofa flag', () => pm.expect(pm.response.json()).to.have.property('twofa_enabled'));"
+      ] } }]
+    },
+    {
+      "name": "19 — Active sessions",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/settings/sessions"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "const arr = pm.response.json();",
+        "pm.test('current=true present', () => pm.expect(Array.isArray(arr) && arr.some(s => s.current === true)).to.eql(true));"
+      ] } }]
+    },
+    {
+      "name": "20 — Logout",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/auth/logout"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));"
+      ] } }]
+    },
+    {
+      "name": "21 — Me after logout (token revoked)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/auth/me"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('401', () => pm.response.to.have.status(401));"
+      ] } }]
+    }
+  ]
+}

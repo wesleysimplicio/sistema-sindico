@@ -6,8 +6,14 @@ namespace App\Core;
 
 final class Jwt
 {
+    private const MIN_SECRET_BYTES = 32;
+
     public static function encode(array $payload, string $secret, int $ttlSeconds = 86400): string
     {
+        if (strlen($secret) < self::MIN_SECRET_BYTES) {
+            // Refuse to mint tokens with weak/missing secret — better to fail loud than ship a bypass.
+            throw new \RuntimeException('JWT_SECRET ausente ou muito curto (>=32 bytes).');
+        }
         $header = ['alg' => 'HS256', 'typ' => 'JWT'];
         $now = time();
         $payload = array_merge($payload, [
@@ -22,6 +28,9 @@ final class Jwt
 
     public static function decode(string $token, string $secret): ?array
     {
+        if (strlen($secret) < self::MIN_SECRET_BYTES) {
+            return null;
+        }
         $parts = explode('.', $token);
         if (count($parts) !== 3) {
             return null;

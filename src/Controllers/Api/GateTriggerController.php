@@ -130,6 +130,22 @@ final class GateTriggerController
         if ($endpoint === '' || !preg_match('/^https?:\/\//i', $endpoint)) {
             return [null, 'invalid endpoint_url'];
         }
+        $parts = parse_url($endpoint);
+        if ($parts === false || empty($parts['host'])) {
+            return [null, 'invalid endpoint_url'];
+        }
+        $host   = (string) $parts['host'];
+        $scheme = strtolower((string) ($parts['scheme'] ?? 'http'));
+        $port   = isset($parts['port']) ? (int) $parts['port'] : ($scheme === 'https' ? 443 : 80);
+
+        // Resolve host once and validate against private/loopback/link-local/CGNAT/etc.
+        $ip = self::resolveHost($host);
+        if ($ip === null) {
+            return [null, 'dns resolve failed'];
+        }
+        if (!self::isPublicIp($ip)) {
+            return [null, 'endpoint resolves to disallowed address'];
+        }
         if (!function_exists('curl_init')) {
             return [null, 'curl extension missing'];
         }
@@ -151,11 +167,42 @@ final class GateTriggerController
             CURLOPT_FOLLOWLOCATION    => false,
             CURLOPT_SSL_VERIFYPEER    => true,
             CURLOPT_SSL_VERIFYHOST    => 2,
+            CURLOPT_PROTOCOLS         => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS   => CURLPROTO_HTTPS,
+            // Pin DNS to the validated IP so a rebind between resolve and connect cannot redirect to private space.
+            CURLOPT_RESOLVE           => [sprintf('%s:%d:%s', $host, $port, $ip)],
         ]);
         curl_exec($ch);
         $err  = curl_errno($ch) !== 0 ? curl_error($ch) : null;
         $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         curl_close($ch);
         return [$code > 0 ? (int) $code : null, $err];
+    }
+
+    private static function resolveHost(string $host): ?string
+    {
+        // Already an IP literal? Use as-is.
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            return $host;
+        }
+        // Strip IPv6 brackets if any.
+        $clean = trim($host, '[]');
+        if (filter_var($clean, FILTER_VALIDATE_IP)) {
+            return $clean;
+        }
+        $resolved = @gethostbyname($host);
+        if ($resolved === '' || $resolved === $host) {
+            return null;
+        }
+        return $resolved;
+    }
+
+    private static function isPublicIp(string $ip): bool
+    {
+        return (bool) filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        );
     }
 }

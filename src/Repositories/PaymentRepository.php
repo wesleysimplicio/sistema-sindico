@@ -35,12 +35,14 @@ final class PaymentRepository extends BaseRepository
         return $stmt->fetchAll();
     }
 
-    public function markPaid(int $id): bool
+    public function markPaid(int $id, int $condominiumId): bool
     {
         $stmt = $this->pdo->prepare(
-            "UPDATE payments SET status = 'pago', paid_at = NOW() WHERE id = :id"
+            "UPDATE payments SET status = 'pago', paid_at = NOW()
+             WHERE id = :id AND condominium_id = :cid"
         );
-        return $stmt->execute(['id' => $id]);
+        $stmt->execute(['id' => $id, 'cid' => $condominiumId]);
+        return $stmt->rowCount() > 0;
     }
 
     public function summaryByCondominium(int $condominiumId): array

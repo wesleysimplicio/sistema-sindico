@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.0 - 2026-05-04
+- Sprint 7 — Polish & release: Playwright E2E scaffold, Newman API regression, full security pass, performance pass, README endpoint matrix + ER diagram, v1.0.0 cut.
+- security — cross-tenant guard: `PaymentController::markPaid` now resolves the row via `findInCondo` and `PaymentRepository::markPaid` requires `condominium_id` in the UPDATE itself; returns 404 instead of leaking existence.
+- security — SSRF: `GateTriggerController::callDevice` resolves hostname via `gethostbyname`, rejects private/reserved IPs through `FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE`, pins DNS via `CURLOPT_RESOLVE`, restricts protocols to HTTP/HTTPS, disables redirects.
+- security — rate limiting: new `Middleware\RateLimit::enforce(bucket, max, windowSec, key)` with sliding-window counter in new `rate_limits` table (idempotent migration `database/migrations/011_rate_limits.sql`); login `auth_login` 10/15min + dummy `password_verify` for missing user (timing leak), 2FA verify `auth_2fa` 5/15min, forgot-password `auth_forgot` 3/hour, verify-code `auth_verify_code` 5/15min, webhook `webhook_access` 60/min; emits `X-RateLimit-Limit/Remaining/Reset` headers and `429 + Retry-After` when exhausted.
+- security — JWT guard: `Jwt` rejects secrets shorter than 32 bytes (`MIN_SECRET_BYTES`), throws on encode and returns null on decode; recovery branch in `AuthRecoveryController` differentiates email vs document via `FILTER_VALIDATE_EMAIL` instead of cross-column LIKE.
+- security — path traversal lockdown: new `App\Core\StoragePath` with `isSafeRelative` (rejects NUL, absolute, schemes, drive letters, backslash, traversal segments; per-segment regex `/^[A-Za-z0-9._\- ]+$/`) and `resolve` (`realpath` boundary check against `storage/uploads/`); wired into `DocumentController::store`/`download`, `NoticeController::addAttachment`, `MaintenanceController::addAttachment`.
+- performance — composite indexes (idempotent migration `database/migrations/012_perf_indexes.sql`): `idx_notices_condo_scope`, `idx_notices_condo_pinned_pub`, `idx_nread_user_notice`, `idx_pay_condo_due`, `idx_del_condo_recv`, `idx_vis_condo_expected`, `idx_del_unit_recv`, `idx_vis_unit_created`, `idx_users_condo_role`.
+- performance — bulk fan-out: new `NotificationRepository::pushBulk` issues a single multi-row INSERT for N recipients; `ContactController::store` switched to it for sindico fan-out.
+- performance — `NoticeRepository::listForUser` replaces correlated `(SELECT COUNT(*) FROM notice_reads ...)` with `LEFT JOIN notice_reads r ON r.notice_id = n.id AND r.user_id = :uid` and exposes `(r.notice_id IS NOT NULL) AS is_read`.
+- testing — Playwright happy-path scaffold under `tests/e2e/` (`playwright.config.js` desktop-chromium + mobile-chromium projects, `specs/` smoke flows); Newman/Postman v2.1.0 collection at `tests/api/sistema-sindico.postman_collection.json` covering health, login, profile, dashboard, notices, payments, contact.
+- docs — `README.md` rewritten with full endpoint matrix grouped by domain (auth, condominium, notices, maintenance, payments, visitors, deliveries, bookings, documents, messages, access control, notifications, settings, contact), Security posture, Performance posture, and Mermaid ER diagram of core tables.
+- VERSION bumped to 1.0.0.
+
 ## 0.10.0 - 2026-05-04
 - Sprint 6 — Notifications, 2FA, sessions, password policy, system endpoints, contact inbox (issues `#54` `#55` `#56` `#57` `#58` `#59` `#60` `#61` `#62` `#63`)
 - notifications feed: `GET /api/notifications` paginated per-user feed; `GET /api/notifications/unread-count`; `POST /api/notifications/{id}/read` marks single read with tenant scoping; `POST /api/notifications/read-all` bulk-acks; new `notifications` table with `user_id`, `condominium_id`, `type`, `title`, `body`, `entity_type`, `entity_id`, `read_at`, `created_at`

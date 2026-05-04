@@ -6,3 +6,7 @@
 docs/print/_sheet_*.jpg
 /.deploy-build/
 .ftp-deploy-sync-state.json
+/.claude/
+/tests/e2e/node_modules/
+/tests/e2e/test-results/
+/tests/e2e/playwright-report/

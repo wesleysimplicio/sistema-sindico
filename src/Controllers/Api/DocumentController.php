@@ -7,6 +7,7 @@ namespace App\Controllers\Api;
 use App\Core\Auth;
 use App\Core\Request;
 use App\Core\Response;
+use App\Core\StoragePath;
 use App\Repositories\AuditLogRepository;
 use App\Repositories\DocumentFolderRepository;
 use App\Repositories\DocumentRepository;
@@ -66,6 +67,10 @@ final class DocumentController
         $filePath = trim((string) Request::input('file_path', ''));
         if ($title === '' || $filePath === '') {
             Response::error('Titulo e file_path obrigatorios.', 422);
+            return;
+        }
+        if (!StoragePath::isSafeRelative($filePath)) {
+            Response::error('file_path invalido.', 422);
             return;
         }
         $folderId = Request::input('folder_id');
@@ -310,16 +315,6 @@ final class DocumentController
 
     private function resolvePath(string $relative): ?string
     {
-        $root = dirname(__DIR__, 3);
-        $candidate = $root . '/' . ltrim($relative, '/');
-        $real = realpath($candidate);
-        if ($real === false) {
-            return null;
-        }
-        $rootReal = realpath($root) ?: $root;
-        if (!str_starts_with($real, $rootReal)) {
-            return null;
-        }
-        return $real;
+        return StoragePath::resolve($relative);
     }
 }
