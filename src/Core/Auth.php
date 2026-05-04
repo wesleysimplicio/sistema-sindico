@@ -9,6 +9,17 @@ use App\Repositories\UserRepository;
 final class Auth
 {
     private static ?array $user = null;
+    private static ?string $jti = null;
+
+    public static function setJti(?string $jti): void
+    {
+        self::$jti = $jti;
+    }
+
+    public static function jti(): ?string
+    {
+        return self::$jti;
+    }
 
     public static function user(): ?array
     {

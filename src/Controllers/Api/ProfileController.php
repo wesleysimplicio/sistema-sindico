@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Api;
 
 use App\Core\Auth;
+use App\Core\PasswordPolicy;
 use App\Core\Request;
 use App\Core\Response;
 use App\Repositories\CondominiumRepository;
@@ -108,8 +109,14 @@ final class ProfileController
             Response::error('current_password e new_password sao obrigatorios.', 422);
             return;
         }
-        if (strlen($next) < self::MIN_PASSWORD_LEN) {
-            Response::error('Senha deve ter ao menos ' . self::MIN_PASSWORD_LEN . ' caracteres.', 422);
+        $violations = PasswordPolicy::violations($next);
+        if ($violations !== []) {
+            Response::error(
+                'Senha nao atende aos requisitos.',
+                422,
+                ['violations' => $violations, 'policy' => PasswordPolicy::describe()],
+                'weak_password'
+            );
             return;
         }
         if (!password_verify($current, (string) $u['password_hash'])) {
