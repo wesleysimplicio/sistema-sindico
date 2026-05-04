@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1 - 2026-05-04
+- [S1-03] `GET /api/memberships`: new endpoint returning all condominiums a user belongs to with their role per condo; supports `?is_active=` filter (1 = active, 0 = inactive, omit = all)
+- new `memberships` table in `database/schema.sql` (many-to-many user ↔ condominium with role + is_active)
+- new `database/migrations/001_create_memberships.sql`
+- new `MembershipRepository` with `listByUser()` joining condominiums and units
+- new `MembershipController` wired to the authenticated API route group
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies
