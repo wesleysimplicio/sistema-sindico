@@ -15,21 +15,21 @@
   <main class="auth-wrap">
     <div class="auth-card">
       <h1>Sistema Sindico</h1>
-      <p class="muted">Digite o codigo de 6 digitos enviado para o seu contato cadastrado. O codigo expira em 10 minutos.</p>
+      <p class="muted">Digite o código de 6 dígitos enviado para o seu contato cadastrado. O código expira em 10 minutos.</p>
       <?php if (!empty($error)): ?>
         <div class="alert error"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
       <form method="post" action="/verify-code" novalidate>
         <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf) ?>">
         <label>
-          Codigo de verificacao
+          Código de verificação
           <input type="text" name="code" required autofocus autocomplete="one-time-code"
                  inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000">
         </label>
-        <button type="submit" class="btn primary">Verificar codigo</button>
+        <button type="submit" class="btn primary">Verificar código</button>
       </form>
       <p class="muted small" style="margin-top:12px;">
-        <a href="/forgot-password" class="link-muted">Reenviar codigo</a>
+        <a href="/forgot-password" class="link-muted">Reenviar código</a>
         &nbsp;·&nbsp;
         <a href="/login" class="link-muted">Voltar para o login</a>
       </p>

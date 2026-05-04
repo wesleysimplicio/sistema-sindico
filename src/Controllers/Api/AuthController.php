@@ -49,7 +49,7 @@ final class AuthController
     {
         $document = trim((string) Request::input('document', ''));
         if ($document === '') {
-            Response::error('O campo documento (CPF/CNPJ) e obrigatorio.', 422);
+            Response::error('O campo documento (CPF/CNPJ) é obrigatório.', 422);
             return;
         }
 
@@ -70,7 +70,7 @@ final class AuthController
             ));
         }
 
-        Response::json(['message' => 'Se o documento estiver cadastrado, um codigo sera enviado.']);
+        Response::json(['message' => 'Se o documento estiver cadastrado, um código será enviado.']);
     }
 
     public function verifyCode(): void
@@ -79,20 +79,20 @@ final class AuthController
         $code     = trim((string) Request::input('code', ''));
 
         if ($document === '' || $code === '') {
-            Response::error('Documento e codigo sao obrigatorios.', 422);
+            Response::error('Documento e código são obrigatórios.', 422);
             return;
         }
 
         $repo = new UserRepository();
         $user = $repo->findByDocument($document);
         if ($user === null) {
-            Response::error('Codigo invalido ou expirado.', 400);
+            Response::error('Código inválido ou expirado.', 400);
             return;
         }
 
         $row = $repo->findValidResetByCode((int) $user['id'], $code);
         if ($row === null) {
-            Response::error('Codigo invalido ou expirado.', 400);
+            Response::error('Código inválido ou expirado.', 400);
             return;
         }
 
@@ -108,7 +108,7 @@ final class AuthController
         $newPassword = (string) Request::input('new_password', '');
 
         if ($resetToken === '' || $newPassword === '') {
-            Response::error('Token e nova senha sao obrigatorios.', 422);
+            Response::error('Token e nova senha são obrigatórios.', 422);
             return;
         }
 
@@ -121,7 +121,7 @@ final class AuthController
         $repo = new UserRepository();
         $row  = $repo->findValidResetByToken($resetToken);
         if ($row === null) {
-            Response::error('Token invalido ou expirado.', 400);
+            Response::error('Token inválido ou expirado.', 400);
             return;
         }
 
@@ -155,13 +155,13 @@ final class AuthController
     public static function validatePassword(string $password): ?string
     {
         if (strlen($password) < 8) {
-            return 'A senha deve ter no minimo 8 caracteres.';
+            return 'A senha deve ter no mínimo 8 caracteres.';
         }
         if (!preg_match('/[A-Za-z]/', $password)) {
             return 'A senha deve conter pelo menos uma letra.';
         }
         if (!preg_match('/[0-9]/', $password)) {
-            return 'A senha deve conter pelo menos um numero.';
+            return 'A senha deve conter pelo menos um número.';
         }
         return null;
     }

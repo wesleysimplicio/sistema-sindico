@@ -31,7 +31,7 @@ final class LoginController
     {
         $token = (string) Request::input('_csrf', '');
         if (!Session::verifyCsrf($token)) {
-            Session::flash('login_error', 'Sessao expirada. Tente novamente.');
+            Session::flash('login_error', 'Sessão expirada. Tente novamente.');
             header('Location: /login');
             return;
         }
@@ -44,7 +44,7 @@ final class LoginController
         }
         $user = Auth::attempt($email, $password);
         if ($user === null) {
-            Session::flash('login_error', 'Credenciais invalidas.');
+            Session::flash('login_error', 'Credenciais inválidas.');
             header('Location: /login');
             return;
         }
@@ -75,7 +75,7 @@ final class LoginController
     {
         $token = (string) Request::input('_csrf', '');
         if (!Session::verifyCsrf($token)) {
-            Session::flash('forgot_error', 'Sessao expirada. Tente novamente.');
+            Session::flash('forgot_error', 'Sessão expirada. Tente novamente.');
             header('Location: /forgot-password');
             return;
         }
@@ -97,7 +97,7 @@ final class LoginController
 
         // Store document in session so the next step knows which user to look up.
         Session::put('reset_document', $document);
-        Session::flash('forgot_info', 'Se o documento estiver cadastrado, um codigo de 6 digitos foi enviado.');
+        Session::flash('forgot_info', 'Se o documento estiver cadastrado, um código de 6 dígitos foi enviado.');
         header('Location: /verify-code');
     }
 
@@ -108,7 +108,7 @@ final class LoginController
     public function verifyCodeShow(): void
     {
         View::render('auth/verify-code', [
-            'title' => 'Verificar codigo | Sistema Sindico',
+            'title' => 'Verificar código | Sistema Sindico',
             'error' => Session::flash('verify_error'),
             'csrf'  => Session::csrfToken(),
         ]);
@@ -118,7 +118,7 @@ final class LoginController
     {
         $token = (string) Request::input('_csrf', '');
         if (!Session::verifyCsrf($token)) {
-            Session::flash('verify_error', 'Sessao expirada. Tente novamente.');
+            Session::flash('verify_error', 'Sessão expirada. Tente novamente.');
             header('Location: /verify-code');
             return;
         }
@@ -127,7 +127,7 @@ final class LoginController
         $code     = trim((string) Request::input('code', ''));
 
         if ($document === '' || $code === '') {
-            Session::flash('verify_error', 'Codigo invalido. Reinicie o processo.');
+            Session::flash('verify_error', 'Código inválido. Reinicie o processo.');
             header('Location: /forgot-password');
             return;
         }
@@ -135,14 +135,14 @@ final class LoginController
         $repo = new UserRepository();
         $user = $repo->findByDocument($document);
         if ($user === null) {
-            Session::flash('verify_error', 'Codigo invalido ou expirado.');
+            Session::flash('verify_error', 'Código inválido ou expirado.');
             header('Location: /verify-code');
             return;
         }
 
         $row = $repo->findValidResetByCode((int) $user['id'], $code);
         if ($row === null) {
-            Session::flash('verify_error', 'Codigo invalido ou expirado.');
+            Session::flash('verify_error', 'Código inválido ou expirado.');
             header('Location: /verify-code');
             return;
         }
@@ -176,7 +176,7 @@ final class LoginController
     {
         $token = (string) Request::input('_csrf', '');
         if (!Session::verifyCsrf($token)) {
-            Session::flash('reset_error', 'Sessao expirada. Tente novamente.');
+            Session::flash('reset_error', 'Sessão expirada. Tente novamente.');
             header('Location: /reset-password');
             return;
         }
@@ -191,7 +191,7 @@ final class LoginController
         }
 
         if ($newPassword !== $confirm) {
-            Session::flash('reset_error', 'As senhas nao conferem.');
+            Session::flash('reset_error', 'As senhas não conferem.');
             header('Location: /reset-password');
             return;
         }
@@ -206,7 +206,7 @@ final class LoginController
         $repo = new UserRepository();
         $row  = $repo->findValidResetByToken($resetToken);
         if ($row === null) {
-            Session::flash('reset_error', 'Token invalido ou expirado. Reinicie o processo.');
+            Session::flash('reset_error', 'Token inválido ou expirado. Reinicie o processo.');
             header('Location: /forgot-password');
             return;
         }
@@ -217,7 +217,7 @@ final class LoginController
         Session::forget('reset_token');
 
         Session::flash('login_error', '');
-        Session::flash('login_info', 'Senha alterada com sucesso! Faca login.');
+        Session::flash('login_info', 'Senha alterada com sucesso! Faça login.');
         header('Location: /login');
     }
 }

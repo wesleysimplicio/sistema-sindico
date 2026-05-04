@@ -24,7 +24,7 @@
         <label>
           Nova senha
           <input type="password" name="new_password" required autofocus autocomplete="new-password"
-                 minlength="8" placeholder="Minimo 8 caracteres">
+                 minlength="8" placeholder="Mínimo 8 caracteres">
         </label>
         <label>
           Confirmar nova senha
@@ -34,7 +34,7 @@
         <button type="submit" class="btn primary">Salvar nova senha</button>
       </form>
       <p class="muted small" style="margin-top:12px;">
-        A senha deve ter no minimo 8 caracteres, com pelo menos uma letra e um numero.
+        A senha deve ter no mínimo 8 caracteres, com pelo menos uma letra e um número.
       </p>
       <p class="muted small">
         <a href="/login" class="link-muted">Cancelar</a>

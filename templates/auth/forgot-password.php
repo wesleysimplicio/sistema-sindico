@@ -16,7 +16,7 @@
   <main class="auth-wrap">
     <div class="auth-card">
       <h1>Sistema Sindico</h1>
-      <p class="muted">Informe seu CPF ou documento cadastrado para receber o codigo de verificacao.</p>
+      <p class="muted">Informe seu CPF ou documento cadastrado para receber o código de verificação.</p>
       <?php if (!empty($error)): ?>
         <div class="alert error"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
@@ -29,7 +29,7 @@
           CPF / Documento
           <input type="text" name="document" required autofocus autocomplete="off" placeholder="000.000.000-00">
         </label>
-        <button type="submit" class="btn primary">Enviar codigo</button>
+        <button type="submit" class="btn primary">Enviar código</button>
       </form>
       <p class="muted small" style="margin-top:12px;">
         <a href="/login" class="link-muted">Voltar para o login</a>
