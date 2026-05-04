@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 - 2026-05-04
+- new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
+- new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies
+- GitHub: 40 labels created (`module:*`, `type:*`, `sprint:*`, `priority:*`), 7 milestones (Sprint 1 through Sprint 7), 70 issues opened (`#1`–`#70`) covering all epics and user stories from the backlog
+- VERSION bumped to 0.4.0
+
 ## 0.3.1 - 2026-05-04
 - workflow now skips the FTP upload step when `FTP_HOST` secret is empty, surfacing a `::warning::` instead of failing the build, so the pipeline goes green out of the box until credentials are configured
 - new `scripts/smoke-public-site.sh` validates `/`, `/login`, `/assets/app.css`, `/api/health` envelope, and confirms `.env`, `database/schema.sql`, `CHANGELOG.md`, `VERSION`, `CLAUDE.md` are not publicly served
