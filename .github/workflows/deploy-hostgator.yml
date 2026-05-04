@@ -45,7 +45,19 @@ jobs:
           echo "----- file count -----"
           find .deploy-build/hostgator-release -type f | wc -l
 
+      - name: Skip FTP upload (secrets missing)
+        if: env.FTP_HOST == ''
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+        run: |
+          echo "::warning::FTP secrets are not configured; skipping upload."
+          echo "Set FTP_HOST, FTP_USERNAME, FTP_PASSWORD and FTP_REMOTE_DIR in"
+          echo "Settings -> Secrets and variables -> Actions to enable deploy."
+
       - name: Upload to HostGator via FTP
+        if: env.FTP_HOST != ''
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
