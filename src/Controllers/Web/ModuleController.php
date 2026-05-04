@@ -9,14 +9,18 @@ use App\Core\View;
 use App\Repositories\BookingRepository;
 use App\Repositories\CommonAreaRepository;
 use App\Repositories\CondominiumRepository;
+use App\Repositories\ContractorRepository;
 use App\Repositories\DeliveryRepository;
 use App\Repositories\DocumentRepository;
 use App\Repositories\MaintenanceRepository;
 use App\Repositories\MessageRepository;
 use App\Repositories\NoticeRepository;
 use App\Repositories\PaymentRepository;
+use App\Repositories\PorterNoteRepository;
+use App\Repositories\ResidentRepository;
 use App\Repositories\UnitRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\VehicleRepository;
 use App\Repositories\VisitorRepository;
 
 /**
@@ -173,6 +177,41 @@ final class ModuleController
             ['key' => 'from_name',  'label' => 'De'],
             ['key' => 'to_name',    'label' => 'Para'],
             ['key' => 'created_at', 'label' => 'Enviada em', 'format' => 'datetime'],
+        ]);
+    }
+
+    public function unitHub(array $params): void
+    {
+        $unitId = (int) ($params['id'] ?? 0);
+        $cid = Auth::condominiumId();
+        $unit = $unitId > 0 ? (new UnitRepository())->find($unitId) : null;
+        if ($unit === null || ($cid !== null && (int) $unit['condominium_id'] !== $cid)) {
+            http_response_code(404);
+            View::render('modules/placeholder', [
+                'title'       => 'Unidade nao encontrada | Sistema Sindico',
+                'active'      => 'unidades',
+                'moduleTitle' => 'Unidade nao encontrada',
+                'description' => 'A unidade solicitada nao existe ou nao pertence ao condominio atual.',
+            ]);
+            return;
+        }
+
+        $condoId = (int) $unit['condominium_id'];
+        $residents   = (new ResidentRepository())->allByUnit($condoId, $unitId);
+        $vehicles    = (new VehicleRepository())->allByUnit($condoId, $unitId);
+        $contractorRepo = new ContractorRepository();
+        $contractorRepo->markExpired($condoId);
+        $contractors = $contractorRepo->allByUnit($condoId, $unitId);
+        $porterNotes = (new PorterNoteRepository())->lastForUnit($condoId, $unitId, 10);
+
+        View::render('modules/unit-hub', [
+            'title'       => 'Unidade ' . ($unit['block'] ?? '') . ' ' . ($unit['number'] ?? '') . ' | Sistema Sindico',
+            'active'      => 'unidades',
+            'unit'        => $unit,
+            'residents'   => $residents,
+            'vehicles'    => $vehicles,
+            'contractors' => $contractors,
+            'porterNotes' => $porterNotes,
         ]);
     }
 

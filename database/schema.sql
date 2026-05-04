@@ -18,6 +18,11 @@ DROP TABLE IF EXISTS notices;
 DROP TABLE IF EXISTS api_tokens;
 DROP TABLE IF EXISTS password_history;
 DROP TABLE IF EXISTS password_resets;
+DROP TABLE IF EXISTS login_invitations;
+DROP TABLE IF EXISTS porter_notes;
+DROP TABLE IF EXISTS contractors;
+DROP TABLE IF EXISTS vehicles;
+DROP TABLE IF EXISTS residents;
 DROP TABLE IF EXISTS memberships;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS units;
@@ -324,4 +329,97 @@ CREATE TABLE password_history (
   created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_ph_user (user_id),
   CONSTRAINT fk_ph_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE residents (
+  id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  condominium_id  BIGINT UNSIGNED NOT NULL,
+  unit_id         BIGINT UNSIGNED NOT NULL,
+  user_id         BIGINT UNSIGNED NULL,
+  full_name       VARCHAR(120) NOT NULL,
+  document        VARCHAR(32)  NULL,
+  birth_date      DATE         NULL,
+  relationship    ENUM('owner','tenant','dependent','other') NOT NULL DEFAULT 'owner',
+  is_responsible  TINYINT(1) NOT NULL DEFAULT 0,
+  created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_res_unit (unit_id),
+  KEY idx_res_condo (condominium_id),
+  CONSTRAINT fk_res_condo FOREIGN KEY (condominium_id) REFERENCES condominiums(id) ON DELETE CASCADE,
+  CONSTRAINT fk_res_unit  FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE,
+  CONSTRAINT fk_res_user  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE vehicles (
+  id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  condominium_id  BIGINT UNSIGNED NOT NULL,
+  unit_id         BIGINT UNSIGNED NOT NULL,
+  resident_id     BIGINT UNSIGNED NULL,
+  plate           VARCHAR(16)  NOT NULL,
+  brand           VARCHAR(64)  NULL,
+  model           VARCHAR(64)  NULL,
+  color           VARCHAR(32)  NULL,
+  vehicle_type    ENUM('car','motorcycle','bike','other') NOT NULL DEFAULT 'car',
+  parking_spot    VARCHAR(16)  NULL,
+  created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_vehicle_plate_condo (condominium_id, plate),
+  KEY idx_veh_unit (unit_id),
+  CONSTRAINT fk_veh_condo FOREIGN KEY (condominium_id) REFERENCES condominiums(id) ON DELETE CASCADE,
+  CONSTRAINT fk_veh_unit  FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE,
+  CONSTRAINT fk_veh_resident FOREIGN KEY (resident_id) REFERENCES residents(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE contractors (
+  id               BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  condominium_id   BIGINT UNSIGNED NOT NULL,
+  unit_id          BIGINT UNSIGNED NOT NULL,
+  full_name        VARCHAR(120) NOT NULL,
+  document         VARCHAR(32)  NULL,
+  service_type     VARCHAR(64)  NULL,
+  access_starts_at DATE NULL,
+  access_ends_at   DATE NULL,
+  status           ENUM('pending','approved','expired','revoked') NOT NULL DEFAULT 'pending',
+  created_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_contractor_unit (unit_id),
+  KEY idx_contractor_condo (condominium_id, status),
+  CONSTRAINT fk_contractor_condo FOREIGN KEY (condominium_id) REFERENCES condominiums(id) ON DELETE CASCADE,
+  CONSTRAINT fk_contractor_unit  FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE porter_notes (
+  id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  condominium_id  BIGINT UNSIGNED NOT NULL,
+  unit_id         BIGINT UNSIGNED NULL,
+  author_user_id  BIGINT UNSIGNED NOT NULL,
+  body            TEXT NOT NULL,
+  created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_pn_condo (condominium_id, created_at),
+  KEY idx_pn_unit (unit_id),
+  CONSTRAINT fk_pn_condo  FOREIGN KEY (condominium_id) REFERENCES condominiums(id) ON DELETE CASCADE,
+  CONSTRAINT fk_pn_unit   FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE SET NULL,
+  CONSTRAINT fk_pn_author FOREIGN KEY (author_user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE login_invitations (
+  id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  condominium_id      BIGINT UNSIGNED NOT NULL,
+  unit_id             BIGINT UNSIGNED NULL,
+  email               VARCHAR(120) NULL,
+  phone               VARCHAR(32)  NULL,
+  full_name           VARCHAR(120) NOT NULL,
+  document            VARCHAR(32)  NULL,
+  role                ENUM('sindico','morador','porteiro') NOT NULL,
+  token               VARCHAR(64)  NOT NULL,
+  expires_at          DATETIME     NOT NULL,
+  accepted_at         DATETIME     NULL,
+  created_by_user_id  BIGINT UNSIGNED NOT NULL,
+  created_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_login_inv_token (token),
+  KEY idx_login_inv_condo (condominium_id),
+  KEY idx_login_inv_unit (unit_id),
+  CONSTRAINT fk_li_condo  FOREIGN KEY (condominium_id) REFERENCES condominiums(id) ON DELETE CASCADE,
+  CONSTRAINT fk_li_unit   FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE SET NULL,
+  CONSTRAINT fk_li_author FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

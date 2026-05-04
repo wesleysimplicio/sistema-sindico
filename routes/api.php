@@ -15,6 +15,7 @@ use App\Controllers\Api\AuthRecoveryController;
 use App\Controllers\Api\BookingController;
 use App\Controllers\Api\CommonAreaController;
 use App\Controllers\Api\CondominiumController;
+use App\Controllers\Api\ContractorController;
 use App\Controllers\Api\DashboardController;
 use App\Controllers\Api\DeliveryController;
 use App\Controllers\Api\DocumentController;
@@ -24,9 +25,12 @@ use App\Controllers\Api\MembershipController;
 use App\Controllers\Api\MessageController;
 use App\Controllers\Api\NoticeController;
 use App\Controllers\Api\PaymentController;
+use App\Controllers\Api\PorterNoteController;
 use App\Controllers\Api\ProfileController;
 use App\Controllers\Api\ResidentController;
 use App\Controllers\Api\UnitController;
+use App\Controllers\Api\UnitOverviewController;
+use App\Controllers\Api\VehicleController;
 use App\Controllers\Api\VisitorController;
 use App\Middleware\ApiAuth;
 
@@ -56,6 +60,27 @@ $router->group([ApiAuth::class], function ($router): void {
 
     $router->get('/api/units',                [UnitController::class, 'index']);
     $router->get('/api/residents',            [ResidentController::class, 'index']);
+
+    // Sprint 2 - Unit hub (scoped by condominium + unit)
+    $router->get('/api/condominium/{c}/units/{u}/overview',          [UnitOverviewController::class, 'show']);
+
+    $router->get('/api/condominium/{c}/units/{u}/residents',         [ResidentController::class, 'unitIndex']);
+    $router->post('/api/condominium/{c}/units/{u}/residents',        [ResidentController::class, 'unitStore']);
+    $router->delete('/api/condominium/{c}/units/{u}/residents/{rid}',[ResidentController::class, 'unitDestroy']);
+
+    $router->get('/api/condominium/{c}/units/{u}/vehicles',          [VehicleController::class, 'index']);
+    $router->post('/api/condominium/{c}/units/{u}/vehicles',         [VehicleController::class, 'store']);
+    $router->patch('/api/condominium/{c}/units/{u}/vehicles/{vid}',  [VehicleController::class, 'update']);
+    $router->delete('/api/condominium/{c}/units/{u}/vehicles/{vid}', [VehicleController::class, 'destroy']);
+
+    $router->get('/api/condominium/{c}/units/{u}/contractors',       [ContractorController::class, 'index']);
+    $router->post('/api/condominium/{c}/units/{u}/contractors',      [ContractorController::class, 'store']);
+    $router->patch('/api/condominium/{c}/units/{u}/contractors/{id}',[ContractorController::class, 'update']);
+    $router->patch('/api/condominium/{c}/units/{u}/contractors/{id}/status', [ContractorController::class, 'changeStatus']);
+    $router->delete('/api/condominium/{c}/units/{u}/contractors/{id}', [ContractorController::class, 'destroy']);
+
+    $router->get('/api/condominium/{c}/porter-notes',                [PorterNoteController::class, 'index']);
+    $router->post('/api/condominium/{c}/porter-notes',               [PorterNoteController::class, 'store']);
 
     $router->get('/api/notices',              [NoticeController::class, 'index']);
     $router->get('/api/notices/{id}',         [NoticeController::class, 'show']);
