@@ -26,6 +26,20 @@ final class DeliveryRepository extends BaseRepository
         return $stmt->fetchAll();
     }
 
+    public function findLatestForUnit(int $condoId, int $unitId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, sender, courier, status, received_at
+             FROM deliveries
+             WHERE condominium_id = :cid AND unit_id = :uid
+             ORDER BY received_at DESC
+             LIMIT 1'
+        );
+        $stmt->execute(['cid' => $condoId, 'uid' => $unitId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
     public function listByResident(int $residentId): array
     {
         $stmt = $this->pdo->prepare(

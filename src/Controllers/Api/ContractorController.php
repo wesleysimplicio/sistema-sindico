@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Request;
 use App\Core\Response;
 use App\Repositories\ContractorRepository;
+use DateTimeImmutable;
 
 final class ContractorController
 {
@@ -37,12 +38,18 @@ final class ContractorController
             Response::error('Nome obrigatorio.', 422);
             return;
         }
+        $startsAt = self::nullableStr(Request::input('access_starts_at'));
+        $endsAt   = self::nullableStr(Request::input('access_ends_at'));
+        $window = self::validateDateWindow($startsAt, $endsAt);
+        if ($window === null) {
+            return; // 422 already emitted
+        }
         $data = [
             'full_name'        => $name,
             'document'         => self::nullableStr(Request::input('document')),
             'service_type'     => self::nullableStr(Request::input('service_type')),
-            'access_starts_at' => self::nullableStr(Request::input('access_starts_at')),
-            'access_ends_at'   => self::nullableStr(Request::input('access_ends_at')),
+            'access_starts_at' => $startsAt,
+            'access_ends_at'   => $endsAt,
             'status'           => 'pending',
         ];
         $id = (new ContractorRepository())->createForUnit($condoId, $unitId, $data);
@@ -74,6 +81,24 @@ final class ContractorController
             Response::error('Nada para atualizar.', 422);
             return;
         }
+
+        $hasStart = array_key_exists('access_starts_at', $patch);
+        $hasEnd   = array_key_exists('access_ends_at', $patch);
+        if ($hasStart || $hasEnd) {
+            $existing = $repo->findScoped($condoId, $unitId, $id);
+            $startsAt = $hasStart ? self::nullableStr($patch['access_starts_at']) : ($existing['access_starts_at'] ?? null);
+            $endsAt   = $hasEnd   ? self::nullableStr($patch['access_ends_at'])   : ($existing['access_ends_at']   ?? null);
+            if (self::validateDateWindow($startsAt, $endsAt) === null) {
+                return; // 422 already emitted
+            }
+            if ($hasStart) {
+                $patch['access_starts_at'] = $startsAt;
+            }
+            if ($hasEnd) {
+                $patch['access_ends_at'] = $endsAt;
+            }
+        }
+
         $repo->update($id, $patch);
         Response::json(['updated' => true]);
     }
@@ -214,5 +239,41 @@ final class ContractorController
         }
         $v = trim((string) $v);
         return $v === '' ? null : $v;
+    }
+
+    /**
+     * Returns [DateTimeImmutable|null start, DateTimeImmutable|null end] on success
+     * or null on validation failure (after emitting 422 via Response::error).
+     * Both must be null OR both provided. Non-parseable, end < start, window > 365d -> 422.
+     */
+    private static function validateDateWindow(?string $start, ?string $end): ?array
+    {
+        if ($start === null && $end === null) {
+            return [null, null];
+        }
+        if ($start === null || $end === null) {
+            Response::error('Datas de acesso devem ser fornecidas em par.', 422);
+            return null;
+        }
+        $startDt = DateTimeImmutable::createFromFormat('!Y-m-d', $start);
+        $endDt   = DateTimeImmutable::createFromFormat('!Y-m-d', $end);
+        if ($startDt === false || $startDt->format('Y-m-d') !== $start) {
+            Response::error('Data de inicio invalida.', 422, ['field' => 'access_starts_at']);
+            return null;
+        }
+        if ($endDt === false || $endDt->format('Y-m-d') !== $end) {
+            Response::error('Data de fim invalida.', 422, ['field' => 'access_ends_at']);
+            return null;
+        }
+        if ($endDt < $startDt) {
+            Response::error('Data de fim anterior ao inicio.', 422);
+            return null;
+        }
+        $diffDays = (int) $startDt->diff($endDt)->format('%a');
+        if ($diffDays > 365) {
+            Response::error('Janela de acesso excede 365 dias.', 422, ['days' => $diffDays]);
+            return null;
+        }
+        return [$startDt, $endDt];
     }
 }

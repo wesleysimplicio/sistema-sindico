@@ -5,7 +5,7 @@
 /** @var array<int,array<string,mixed>> $contractors */
 /** @var array<int,array<string,mixed>> $porterNotes */
 
-$h = static fn(?string $v): string => htmlspecialchars((string) ($v ?? ''));
+$h = static fn(?string $v): string => htmlspecialchars((string) ($v ?? ''), ENT_QUOTES, 'UTF-8');
 ?>
 <div class="card">
   <h2>Unidade <?= $h($unit['block'] ?? null) ?> &middot; <?= $h($unit['number'] ?? null) ?></h2>

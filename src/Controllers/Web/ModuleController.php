@@ -185,7 +185,7 @@ final class ModuleController
         $unitId = (int) ($params['id'] ?? 0);
         $cid = Auth::condominiumId();
         $unit = $unitId > 0 ? (new UnitRepository())->find($unitId) : null;
-        if ($unit === null || ($cid !== null && (int) $unit['condominium_id'] !== $cid)) {
+        if ($unit === null) {
             http_response_code(404);
             View::render('modules/placeholder', [
                 'title'       => 'Unidade nao encontrada | Sistema Sindico',
@@ -194,6 +194,20 @@ final class ModuleController
                 'description' => 'A unidade solicitada nao existe ou nao pertence ao condominio atual.',
             ]);
             return;
+        }
+        $user = Auth::user();
+        $isAdmin = $user !== null && ($user['role'] ?? null) === 'admin';
+        if (!$isAdmin) {
+            if ($cid === null || (int) $unit['condominium_id'] !== $cid) {
+                http_response_code(403);
+                View::render('modules/placeholder', [
+                    'title'       => 'Acesso negado | Sistema Sindico',
+                    'active'      => 'unidades',
+                    'moduleTitle' => 'Acesso negado',
+                    'description' => 'Voce nao tem permissao para visualizar esta unidade.',
+                ]);
+                return;
+            }
         }
 
         $condoId = (int) $unit['condominium_id'];

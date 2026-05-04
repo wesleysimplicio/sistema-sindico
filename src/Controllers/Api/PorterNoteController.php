@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Request;
 use App\Core\Response;
 use App\Repositories\PorterNoteRepository;
+use App\Repositories\UnitRepository;
 
 final class PorterNoteController
 {
@@ -28,7 +29,8 @@ final class PorterNoteController
             Response::error('Sem permissao.', 403);
             return;
         }
-        $unitId = isset($_GET['unit_id']) && $_GET['unit_id'] !== '' ? (int) $_GET['unit_id'] : null;
+        $unitIdRaw = Request::input('unit_id');
+        $unitId = ($unitIdRaw === null || $unitIdRaw === '') ? null : (int) $unitIdRaw;
         $rows = (new PorterNoteRepository())->listByCondominium($condoId, $unitId);
         Response::json($rows, 200, ['count' => count($rows)]);
     }
@@ -61,6 +63,12 @@ final class PorterNoteController
         }
         $unitIdRaw = Request::input('unit_id');
         $unitId = ($unitIdRaw === null || $unitIdRaw === '') ? null : (int) $unitIdRaw;
+        if ($unitId !== null) {
+            if ((new UnitRepository())->findInCondo($unitId, $condoId) === null) {
+                Response::error('Unidade nao pertence ao condominio.', 422);
+                return;
+            }
+        }
 
         $id = (new PorterNoteRepository())->create([
             'condominium_id' => $condoId,

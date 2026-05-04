@@ -84,6 +84,8 @@ final class ResidentController
         $inviteLogin = (bool) Request::input('invite_login', false);
         $email = self::nullableStr(Request::input('email'));
         if ($inviteLogin && $email !== null) {
+            // Plaintext token: returned to client once, then discarded.
+            // Repository hashes it (sha256) before persisting.
             $token = bin2hex(random_bytes(32));
             $expiresAt = date('Y-m-d H:i:s', time() + 7 * 24 * 3600);
             $author = Auth::user();

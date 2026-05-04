@@ -85,23 +85,11 @@ final class UnitOverviewController
 
     private static function lastVisitorForUnit(int $condoId, int $unitId): ?array
     {
-        $items = (new VisitorRepository())->listByCondominium($condoId);
-        foreach ($items as $v) {
-            if ((int) ($v['unit_id'] ?? 0) === $unitId) {
-                return $v;
-            }
-        }
-        return null;
+        return (new VisitorRepository())->findLatestForUnit($condoId, $unitId);
     }
 
     private static function lastDeliveryForUnit(int $condoId, int $unitId): ?array
     {
-        $items = (new DeliveryRepository())->listByCondominium($condoId);
-        foreach ($items as $d) {
-            if ((int) ($d['unit_id'] ?? 0) === $unitId) {
-                return $d;
-            }
-        }
-        return null;
+        return (new DeliveryRepository())->findLatestForUnit($condoId, $unitId);
     }
 }
