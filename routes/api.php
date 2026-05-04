@@ -10,16 +10,21 @@ declare(strict_types=1);
  * Tenant scoping is enforced inside controllers via Auth::condominiumId().
  */
 
+use App\Controllers\Api\AccessLogController;
+use App\Controllers\Api\AccessWebhookController;
 use App\Controllers\Api\AuthController;
 use App\Controllers\Api\AuthRecoveryController;
 use App\Controllers\Api\BookingController;
+use App\Controllers\Api\CameraController;
 use App\Controllers\Api\CommonAreaController;
 use App\Controllers\Api\CondominiumController;
 use App\Controllers\Api\ContractorController;
 use App\Controllers\Api\DashboardController;
 use App\Controllers\Api\DeliveryController;
 use App\Controllers\Api\DocumentController;
+use App\Controllers\Api\GateTriggerController;
 use App\Controllers\Api\HealthController;
+use App\Controllers\Api\IncidentController;
 use App\Controllers\Api\InvitationController;
 use App\Controllers\Api\InvitationGuestController;
 use App\Controllers\Api\LoginInvitationController;
@@ -45,6 +50,9 @@ $router->post('/api/auth/verify-code',     [AuthRecoveryController::class, 'veri
 $router->post('/api/auth/reset-password',  [AuthRecoveryController::class, 'resetPassword']);
 
 $router->post('/api/auth/invitations/{token}/accept', [LoginInvitationController::class, 'accept']);
+
+// Sprint 5 — public webhook (HMAC-validated, NO ApiAuth)
+$router->post('/api/webhooks/access-event', [AccessWebhookController::class, 'ingest']);
 
 $router->group([ApiAuth::class], function ($router): void {
     $router->post('/api/auth/logout', [AuthController::class, 'logout']);
@@ -159,4 +167,26 @@ $router->group([ApiAuth::class], function ($router): void {
     $router->get('/api/messages/inbox',       [MessageController::class, 'inbox']);
     $router->post('/api/messages',            [MessageController::class, 'store']);
     $router->patch('/api/messages/{id}/read', [MessageController::class, 'read']);
+
+    // Sprint 5 — access logs, cameras, gate triggers, incidents
+    $router->get('/api/access-logs',                  [AccessLogController::class, 'index']);
+    $router->get('/api/access-logs/{id}',             [AccessLogController::class, 'show']);
+
+    $router->get('/api/cameras',                      [CameraController::class, 'index']);
+    $router->get('/api/cameras/{id}',                 [CameraController::class, 'show']);
+    $router->get('/api/cameras/{id}/stream',          [CameraController::class, 'stream']);
+
+    $router->get('/api/gate-triggers',                [GateTriggerController::class, 'index']);
+    $router->post('/api/gate-triggers/{id}/fire',     [GateTriggerController::class, 'fire']);
+    $router->get('/api/gate-triggers/{id}/logs',      [GateTriggerController::class, 'logs']);
+
+    $router->get('/api/incidents',                    [IncidentController::class, 'index']);
+    $router->get('/api/incidents/{id}',               [IncidentController::class, 'show']);
+    $router->post('/api/incidents',                   [IncidentController::class, 'store']);
+    $router->patch('/api/incidents/{id}',             [IncidentController::class, 'update']);
+    $router->get('/api/incidents/{id}/comments',      [IncidentController::class, 'comments']);
+    $router->post('/api/incidents/{id}/comments',     [IncidentController::class, 'addComment']);
+
+    $router->get('/api/incident-types',               [IncidentController::class, 'types']);
+    $router->post('/api/incident-types',              [IncidentController::class, 'storeType']);
 });
