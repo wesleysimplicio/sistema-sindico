@@ -5,12 +5,20 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Core\Database;
+use InvalidArgumentException;
 use PDO;
 
 abstract class BaseRepository
 {
     protected PDO $pdo;
     protected string $table = '';
+
+    private static function assertColumnName(string $col): void
+    {
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $col)) {
+            throw new InvalidArgumentException('Invalid column name: ' . $col);
+        }
+    }
 
     public function __construct()
     {
@@ -33,6 +41,7 @@ abstract class BaseRepository
         if (!empty($where)) {
             $clauses = [];
             foreach ($where as $col => $val) {
+                self::assertColumnName((string) $col);
                 $clauses[] = "$col = :$col";
                 $params[$col] = $val;
             }
@@ -61,6 +70,7 @@ abstract class BaseRepository
         }
         $sets = [];
         foreach (array_keys($data) as $col) {
+            self::assertColumnName((string) $col);
             $sets[] = "$col = :$col";
         }
         $sql = "UPDATE {$this->table} SET " . implode(',', $sets) . ' WHERE id = :id';
@@ -82,6 +92,7 @@ abstract class BaseRepository
         if (!empty($where)) {
             $clauses = [];
             foreach ($where as $col => $val) {
+                self::assertColumnName((string) $col);
                 $clauses[] = "$col = :$col";
                 $params[$col] = $val;
             }

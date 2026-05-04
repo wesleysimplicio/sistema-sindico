@@ -26,6 +26,20 @@ final class VisitorRepository extends BaseRepository
         return $stmt->fetchAll();
     }
 
+    public function findLatestForUnit(int $condoId, int $unitId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, name, document, status, expected_at, created_at
+             FROM visitors
+             WHERE condominium_id = :cid AND unit_id = :uid
+             ORDER BY created_at DESC
+             LIMIT 1'
+        );
+        $stmt->execute(['cid' => $condoId, 'uid' => $unitId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
     public function findByQr(string $qrToken): ?array
     {
         $stmt = $this->pdo->prepare('SELECT * FROM visitors WHERE qr_token = :token LIMIT 1');

@@ -25,6 +25,7 @@ $router->group([AdminOnly::class], function ($router): void {
 
     $router->get('/condominios', [ModuleController::class, 'condominios']);
     $router->get('/unidades',    [ModuleController::class, 'unidades']);
+    $router->get('/unidades/{id}', [ModuleController::class, 'unitHub']);
     $router->get('/moradores',   [ModuleController::class, 'moradores']);
     $router->get('/visitantes',  [ModuleController::class, 'visitantes']);
     $router->get('/avisos',      [ModuleController::class, 'avisos']);

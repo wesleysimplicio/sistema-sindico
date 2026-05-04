@@ -1,0 +1,21 @@
+# Default owner — required reviewer for everything
+*                       @wesleysimplicio
+
+# CI / deploy / infra
+/.github/               @wesleysimplicio
+/scripts/               @wesleysimplicio
+/deploy/                @wesleysimplicio
+
+# Backend PHP
+/src/                   @wesleysimplicio
+/routes/                @wesleysimplicio
+/config/                @wesleysimplicio
+/database/              @wesleysimplicio
+
+# Public assets / frontend
+/public/                @wesleysimplicio
+/templates/             @wesleysimplicio
+
+# Docs
+/docs/                  @wesleysimplicio
+*.md                    @wesleysimplicio

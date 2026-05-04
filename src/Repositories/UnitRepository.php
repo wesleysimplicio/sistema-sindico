@@ -16,4 +16,14 @@ final class UnitRepository extends BaseRepository
         $stmt->execute(['cid' => $condominiumId]);
         return $stmt->fetchAll();
     }
+
+    public function findInCondo(int $unitId, int $condoId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id FROM units WHERE id = :u AND condominium_id = :c LIMIT 1'
+        );
+        $stmt->execute(['u' => $unitId, 'c' => $condoId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
 }
