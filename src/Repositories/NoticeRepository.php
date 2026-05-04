@@ -20,4 +20,15 @@ final class NoticeRepository extends BaseRepository
         $stmt->execute(['cid' => $condominiumId]);
         return $stmt->fetchAll();
     }
+
+    public function countRecent(int $condominiumId, int $days = 7): int
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT COUNT(*) AS c FROM notices
+             WHERE condominium_id = :cid
+               AND published_at >= DATE_SUB(NOW(), INTERVAL :days DAY)'
+        );
+        $stmt->execute(['cid' => $condominiumId, 'days' => $days]);
+        return (int) ($stmt->fetch()['c'] ?? 0);
+    }
 }

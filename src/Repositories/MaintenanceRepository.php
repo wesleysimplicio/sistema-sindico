@@ -26,6 +26,16 @@ final class MaintenanceRepository extends BaseRepository
         return $stmt->fetchAll();
     }
 
+    public function countOpen(int $condominiumId): int
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT COUNT(*) AS c FROM maintenance_requests
+             WHERE condominium_id = :cid AND status IN ('aberto','em_andamento')"
+        );
+        $stmt->execute(['cid' => $condominiumId]);
+        return (int) ($stmt->fetch()['c'] ?? 0);
+    }
+
     public function listByUser(int $userId): array
     {
         $stmt = $this->pdo->prepare(

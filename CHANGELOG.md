@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1 - 2026-05-04
+- S1-07: `GET /api/dashboard` for síndico role — returns counters (`maintenance_open`, `notices_recent`, `visitors_recent`) and lists (`recent_notices`, `recent_visitors`) scoped to the whole condominium
+- Added `MaintenanceRepository::countOpen()`, `NoticeRepository::countRecent()`, `VisitorRepository::countRecent()` and `VisitorRepository::listRecent()` helper methods
+- VERSION bumped to 0.4.1
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies

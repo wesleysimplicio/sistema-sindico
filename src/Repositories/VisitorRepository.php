@@ -26,6 +26,30 @@ final class VisitorRepository extends BaseRepository
         return $stmt->fetchAll();
     }
 
+    public function countRecent(int $condominiumId): int
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT COUNT(*) AS c FROM visitors
+             WHERE condominium_id = :cid AND DATE(expected_at) = CURDATE()'
+        );
+        $stmt->execute(['cid' => $condominiumId]);
+        return (int) ($stmt->fetch()['c'] ?? 0);
+    }
+
+    public function listRecent(int $condominiumId, int $limit = 5): array
+    {
+        $sql = 'SELECT v.*, u.name AS host_name, un.block, un.number AS unit_number
+                FROM visitors v
+                LEFT JOIN users u ON u.id = v.host_id
+                LEFT JOIN units un ON un.id = v.unit_id
+                WHERE v.condominium_id = :cid
+                ORDER BY v.created_at DESC
+                LIMIT ' . (int) $limit;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['cid' => $condominiumId]);
+        return $stmt->fetchAll();
+    }
+
     public function findByQr(string $qrToken): ?array
     {
         $stmt = $this->pdo->prepare('SELECT * FROM visitors WHERE qr_token = :token LIMIT 1');
