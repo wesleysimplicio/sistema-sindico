@@ -44,4 +44,17 @@ final class DeliveryRepository extends BaseRepository
         );
         return $stmt->execute(['id' => $id, 'name' => $withdrawnByName]);
     }
+
+    /**
+     * Count deliveries awaiting pickup for a given unit in a condominium.
+     */
+    public function countPendingByUnit(int $unitId, int $condominiumId): int
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT COUNT(*) AS c FROM deliveries
+             WHERE unit_id = :uid AND condominium_id = :cid AND withdrawn_at IS NULL'
+        );
+        $stmt->execute(['uid' => $unitId, 'cid' => $condominiumId]);
+        return (int) ($stmt->fetch()['c'] ?? 0);
+    }
 }

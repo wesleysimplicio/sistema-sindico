@@ -20,4 +20,15 @@ final class NoticeRepository extends BaseRepository
         $stmt->execute(['cid' => $condominiumId]);
         return $stmt->fetchAll();
     }
+
+    /**
+     * Count notices for a condominium.
+     * Used as an unread proxy until notice_reads tracking is implemented (S4-02).
+     */
+    public function countByCondominium(int $condominiumId): int
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) AS c FROM notices WHERE condominium_id = :cid');
+        $stmt->execute(['cid' => $condominiumId]);
+        return (int) ($stmt->fetch()['c'] ?? 0);
+    }
 }

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1 - 2026-05-04
+- S1-06: `GET /api/dashboard` endpoint for morador role – returns counters scoped to the resident's unit: `notices_unread` (condo total, proxy until S4-02 adds notice_reads), `maintenance_open_mine` (open/in-progress requests submitted by this user), `deliveries_pending_mine` (deliveries awaiting pickup at this unit)
+- added `NoticeRepository::countByCondominium()`, `MaintenanceRepository::countOpenByRequester()`, `DeliveryRepository::countPendingByUnit()` count helpers
+- VERSION bumped to 0.4.1
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies
