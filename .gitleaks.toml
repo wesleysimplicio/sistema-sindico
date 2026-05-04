@@ -1,0 +1,19 @@
+title = "sistema-sindico gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Project-level allowlist"
+paths = [
+  '''\.deploy-build/''',
+  '''\.env\.example$''',
+  '''docs/.*\.md$''',
+  '''README.*\.md$''',
+  '''CHANGELOG\.md$''',
+]
+regexes = [
+  '''EXAMPLE_[A-Z0-9_]+''',
+  '''your-.*-here''',
+  '''<.*-token>''',
+]

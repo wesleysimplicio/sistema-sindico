@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php-lint:
+    name: PHP syntax lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.2', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: PHP -l on src/public/routes/templates
+        run: |
+          set -euo pipefail
+          find src public routes templates -type f -name '*.php' -print0 \
+            | xargs -0 -n1 -P4 php -l > /tmp/lint.log 2>&1 \
+            || (cat /tmp/lint.log && exit 1)
+          echo "PHP lint OK"
+
+      - name: Composer install (if composer.json present)
+        if: hashFiles('composer.json') != ''
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Composer audit
+        if: hashFiles('composer.lock') != ''
+        run: composer audit --no-interaction || true
+
+  static-analysis:
+    name: Static analysis (PHPStan / PHPCS)
+    runs-on: ubuntu-latest
+    if: hashFiles('composer.json') != ''
+    needs: php-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer:v2, phpstan, phpcs
+
+      - run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: PHPStan
+        if: hashFiles('phpstan.neon*') != ''
+        run: vendor/bin/phpstan analyse --no-progress --error-format=github
+
+      - name: PHPCS
+        if: hashFiles('phpcs.xml*') != ''
+        run: vendor/bin/phpcs --report=full
+
+  frontend-checks:
+    name: Frontend lint (JS/CSS)
+    runs-on: ubuntu-latest
+    if: hashFiles('package.json') != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci || npm install
+
+      - name: Lint
+        run: |
+          if npm run | grep -qE '^\s+lint'; then npm run lint; else echo "no lint script"; fi
+
+      - name: Build
+        run: |
+          if npm run | grep -qE '^\s+build'; then npm run build; else echo "no build script"; fi
+
+  build-release:
+    name: Build HostGator release artifact
+    runs-on: ubuntu-latest
+    needs: php-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Build release
+        run: bash scripts/build-hostgator-release.sh
+
+      - name: Verify release
+        run: bash scripts/verify-hostgator-release.sh
+
+      - name: Upload manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: hostgator-release-manifest-${{ github.sha }}
+          path: .deploy-build/hostgator-release.manifest.txt
+          if-no-files-found: warn
+          retention-days: 14

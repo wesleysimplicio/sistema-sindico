@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.1 - 2026-05-04
+- new GitHub Actions workflow `.github/workflows/ci.yml`: PHP 8.1/8.2/8.3 lint matrix, optional composer install + audit, optional PHPStan/PHPCS via reviewdog, optional npm lint/build, HostGator release artifact build with manifest upload
+- new `.github/workflows/code-review.yml`: AI review job calls Claude (`claude-sonnet-4-6`) on every PR diff (200KB cap), posts pt-BR comment with severity buckets; `static-review` job runs `php -l` + PHPStan + PHPCS through reviewdog as inline PR comments; `security-scan` job runs gitleaks for secret detection
+- new `.github/CODEOWNERS` declaring `@wesleysimplicio` as required reviewer per directory
+- new `.gitleaks.toml` allowlisting build artifacts, env examples and docs from secret scanning
+- branch protection on `main` enforced via `gh api`: requires PR, ≥1 approval, CODEOWNERS review, dismiss stale reviews, passing `php-lint` + `static-review` + `claude-review` checks, conversation resolution
+- VERSION bumped to 0.5.1
+
 ## 0.5.0 - 2026-05-04
 - Sprint 1 — Foundations delivered (issues `#2` `#3` `#5` `#6` `#7` `#9` `#10` `#11`)
 - password recovery flow: `POST /api/auth/forgot-password`, `/api/auth/verify-code`, `/api/auth/reset-password` — 6-digit code stored hashed, 15-min TTL, lockout after 5 failed verifications, `password_history` keeps last 5 hashes and blocks reuse, equal-timing path on user-not-found to prevent enumeration
