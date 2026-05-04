@@ -30,6 +30,19 @@ final class ApiAuth
             Response::error('Usuario nao encontrado', 401);
             return false;
         }
+
+        // Overlay JWT claims so that subsequent calls are scoped to the
+        // condominium/unit the client selected via POST /api/memberships/select.
+        if (isset($payload['cid'])) {
+            $user['condominium_id'] = $payload['cid'];
+        }
+        if (array_key_exists('unit_id', $payload)) {
+            $user['unit_id'] = $payload['unit_id'];
+        }
+        if (isset($payload['role'])) {
+            $user['role'] = $payload['role'];
+        }
+
         Auth::setApiUser($user);
         return true;
     }

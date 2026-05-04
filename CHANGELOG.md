@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0 - 2026-05-04
+- S1-03/S1-04 (Memberships & condo/unit picker): `memberships` table added to `database/schema.sql` and `database/migrations/001_memberships.sql`
+- new `MembershipRepository` with `listByUser`, `findByUserAndCondominium`, `listUnitsByUserAndCondominium`
+- new `MembershipController`: GET `/api/memberships` (list user's condos), GET `/api/memberships/{condoId}/units` (units accessible in condo), POST `/api/memberships/select` (reissue scoped JWT)
+- `ApiAuth` middleware now overlays JWT `cid`/`uid`/`role` claims onto the API user so all downstream calls are tenant-scoped to the selected condominium
+- `Auth::unitId()` helper added
+- VERSION bumped to 0.5.0
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies
