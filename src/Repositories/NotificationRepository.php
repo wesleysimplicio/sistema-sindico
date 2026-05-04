@@ -79,4 +79,42 @@ final class NotificationRepository extends BaseRepository
         ]);
         return (int) $this->pdo->lastInsertId();
     }
+
+    /**
+     * Bulk-insert one notification per user_id in a single multi-row INSERT.
+     * Returns the number of rows inserted. Skips when $userIds is empty.
+     */
+    public function pushBulk(
+        array $userIds,
+        ?int $condominiumId,
+        string $type,
+        string $title,
+        ?string $body = null,
+        ?string $relatedEntity = null,
+        ?int $relatedId = null
+    ): int {
+        $userIds = array_values(array_unique(array_map('intval', $userIds)));
+        $userIds = array_filter($userIds, static fn($v) => $v > 0);
+        if ($userIds === []) {
+            return 0;
+        }
+        $rows   = [];
+        $params = [
+            'cid'   => $condominiumId,
+            'type'  => $type,
+            'title' => $title,
+            'body'  => $body,
+            'rel_e' => $relatedEntity,
+            'rel_i' => $relatedId,
+        ];
+        foreach ($userIds as $i => $uid) {
+            $rows[] = "(:uid_$i, :cid, :type, :title, :body, :rel_e, :rel_i)";
+            $params["uid_$i"] = $uid;
+        }
+        $sql = 'INSERT INTO notifications (user_id, condominium_id, type, title, body, related_entity, related_id) VALUES '
+             . implode(', ', $rows);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->rowCount();
+    }
 }

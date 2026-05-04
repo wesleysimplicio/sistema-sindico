@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Api;
 
 use App\Core\Response;
+use App\Middleware\RateLimit;
 use App\Repositories\AccessLogRepository;
 use App\Repositories\CondominiumRepository;
 use App\Repositories\WebhookNonceRepository;
@@ -17,6 +18,10 @@ final class AccessWebhookController
 
     public function ingest(): void
     {
+        if (!RateLimit::enforce('webhook', 60, 60, RateLimit::ipKey())) {
+            return;
+        }
+
         $secret = (string) ($_ENV['ACCESS_WEBHOOK_SECRET'] ?? getenv('ACCESS_WEBHOOK_SECRET') ?: '');
         if ($secret === '' || $secret === 'change-me') {
             Response::error('Webhook secret nao configurado.', 503);

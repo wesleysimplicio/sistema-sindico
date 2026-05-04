@@ -7,6 +7,7 @@ namespace App\Controllers\Api;
 use App\Core\PasswordPolicy;
 use App\Core\Request;
 use App\Core\Response;
+use App\Middleware\RateLimit;
 use App\Repositories\PasswordHistoryRepository;
 use App\Repositories\PasswordResetRepository;
 use App\Repositories\UserRepository;
@@ -27,6 +28,11 @@ final class AuthRecoveryController
 
         if (($document === null || trim($document) === '') && ($email === null || trim($email) === '')) {
             Response::error('Informe document ou email.', 422);
+            return;
+        }
+
+        $identifier = strtolower(trim((string) ($email ?? $document ?? '')));
+        if (!RateLimit::enforce('forgot-password', 3, 3600, RateLimit::ipKey($identifier))) {
             return;
         }
 
@@ -63,8 +69,17 @@ final class AuthRecoveryController
             return;
         }
 
+        if (!RateLimit::enforce('verify-code', 5, 900, RateLimit::ipKey(strtolower($identifier)))) {
+            return;
+        }
+
         $userRepo = new UserRepository();
-        $user = $userRepo->findByDocumentOrEmail($identifier, $identifier);
+        // Email vs document: branch lookup by detected shape to avoid cross-column false matches.
+        $isEmail = (bool) filter_var($identifier, FILTER_VALIDATE_EMAIL);
+        $user = $userRepo->findByDocumentOrEmail(
+            $isEmail ? null : $identifier,
+            $isEmail ? $identifier : null
+        );
         if ($user === null) {
             Response::error('Codigo invalido ou expirado.', 400);
             return;

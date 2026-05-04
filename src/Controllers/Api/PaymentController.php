@@ -51,8 +51,21 @@ final class PaymentController
             Response::error('Sem permissao.', 403);
             return;
         }
+        $cid = Auth::condominiumId();
+        if ($cid === null) {
+            Response::error('Condominio nao definido.', 422);
+            return;
+        }
         $id = (int) ($params['id'] ?? 0);
-        $ok = (new PaymentRepository())->markPaid($id);
-        Response::json(['updated' => $ok]);
+        if ($id <= 0) {
+            Response::error('ID invalido.', 422);
+            return;
+        }
+        $ok = (new PaymentRepository())->markPaid($id, $cid);
+        if (!$ok) {
+            Response::error('Pagamento nao encontrado.', 404);
+            return;
+        }
+        Response::json(['updated' => true]);
     }
 }

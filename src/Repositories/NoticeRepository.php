@@ -11,9 +11,10 @@ final class NoticeRepository extends BaseRepository
     public function listForUser(int $condominiumId, int $userId, ?string $userBlock, ?int $userUnitId, string $userRole, int $limit = 50): array
     {
         $sql = 'SELECT n.*, u.name AS author_name,
-                       (SELECT COUNT(*) FROM notice_reads r WHERE r.notice_id = n.id AND r.user_id = :uid) AS is_read
+                       (r.notice_id IS NOT NULL) AS is_read
                 FROM notices n
                 LEFT JOIN users u ON u.id = n.author_id
+                LEFT JOIN notice_reads r ON r.notice_id = n.id AND r.user_id = :uid
                 WHERE n.condominium_id = :cid
                   AND (
                        n.scope = "all"
