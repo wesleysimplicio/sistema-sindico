@@ -33,6 +33,49 @@ final class UserRepository extends BaseRepository
         return $stmt->fetchAll();
     }
 
+    public function findByDocument(string $document): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE document = :doc LIMIT 1');
+        $stmt->execute(['doc' => $document]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function updatePassword(int $id, string $passwordHash): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE users SET password_hash = :ph, updated_at = NOW() WHERE id = :id'
+        );
+        $stmt->execute(['ph' => $passwordHash, 'id' => $id]);
+    }
+
+    /**
+     * Append the given hash to password_history and prune entries older than
+     * the last 10, keeping the table from growing unbounded.
+     */
+    public function pushPasswordHistory(int $userId, string $passwordHash): void
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO password_history (user_id, password_hash) VALUES (:uid, :ph)'
+        );
+        $stmt->execute(['uid' => $userId, 'ph' => $passwordHash]);
+
+        // Keep only the 10 most recent entries per user
+        $prune = $this->pdo->prepare(
+            'DELETE FROM password_history
+             WHERE user_id = :uid
+               AND id NOT IN (
+                   SELECT id FROM (
+                       SELECT id FROM password_history
+                       WHERE user_id = :uid2
+                       ORDER BY created_at DESC
+                       LIMIT 10
+                   ) AS keep
+               )'
+        );
+        $prune->execute(['uid' => $userId, 'uid2' => $userId]);
+    }
+
     public function touchLogin(int $id): void
     {
         $stmt = $this->pdo->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id');

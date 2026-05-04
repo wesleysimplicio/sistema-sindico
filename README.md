@@ -74,7 +74,10 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 ### Public
 
 - `GET  /api/health`
-- `POST /api/auth/login` — body `{ email, password }`
+- `POST /api/auth/login`            — body `{ email, password }`
+- `POST /api/auth/forgot-password`  — body `{ document }` — generates 6-digit recovery code (logged in dev)
+- `POST /api/auth/verify-code`      — body `{ document, code }` — validates code → returns `{ reset_token }`
+- `POST /api/auth/reset-password`   — body `{ reset_token, new_password }` — sets new password, records history
 
 ### Authenticated
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 - 2026-05-04
+- S1-01 / S1-02: password recovery flow — `POST /api/auth/forgot-password`, `POST /api/auth/verify-code`, `POST /api/auth/reset-password`
+- new `password_resets` table (code_hash + reset_token_hash, expiry, used_at) and `password_history` table
+- migration `database/migrations/001_password_recovery.sql`
+- `PasswordResetRepository` with create/findPending/markVerified/findByToken/markUsed methods
+- `UserRepository` gains `findByDocument`, `updatePassword`, `pushPasswordHistory`
+- 8-character minimum password length enforced on reset; old hash pushed to history before overwrite
+- VERSION bumped to 0.5.0
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies

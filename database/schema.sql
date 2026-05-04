@@ -15,6 +15,8 @@ DROP TABLE IF EXISTS deliveries;
 DROP TABLE IF EXISTS payments;
 DROP TABLE IF EXISTS maintenance_requests;
 DROP TABLE IF EXISTS notices;
+DROP TABLE IF EXISTS password_history;
+DROP TABLE IF EXISTS password_resets;
 DROP TABLE IF EXISTS api_tokens;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS units;
@@ -85,6 +87,27 @@ CREATE TABLE api_tokens (
   created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_tokens_user (user_id),
   CONSTRAINT fk_tokens_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE password_resets (
+  id                BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id           BIGINT UNSIGNED NOT NULL,
+  code_hash         VARCHAR(255) NOT NULL,
+  reset_token_hash  VARCHAR(255) DEFAULT NULL,
+  expires_at        DATETIME NOT NULL,
+  used_at           DATETIME DEFAULT NULL,
+  created_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_pr_user (user_id),
+  CONSTRAINT fk_pr_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE password_history (
+  id              BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id         BIGINT UNSIGNED NOT NULL,
+  password_hash   VARCHAR(255) NOT NULL,
+  created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_ph_user (user_id),
+  CONSTRAINT fk_ph_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE notices (
