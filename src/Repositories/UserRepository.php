@@ -38,4 +38,17 @@ final class UserRepository extends BaseRepository
         $stmt = $this->pdo->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id');
         $stmt->execute(['id' => $id]);
     }
+
+    public function updateProfile(int $id, array $fields): bool
+    {
+        $allowed = ['name', 'phone', 'avatar_url'];
+        $data = array_intersect_key($fields, array_flip($allowed));
+        return $this->update($id, $data);
+    }
+
+    public function updatePassword(int $id, string $passwordHash): bool
+    {
+        $stmt = $this->pdo->prepare('UPDATE users SET password_hash = :hash WHERE id = :id');
+        return $stmt->execute(['hash' => $passwordHash, 'id' => $id]);
+    }
 }

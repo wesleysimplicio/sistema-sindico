@@ -82,6 +82,9 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 |--------|-----------------------------------|-------|
 | GET    | `/api/auth/me`                    | current user |
 | POST   | `/api/auth/logout`                | |
+| GET    | `/api/me`                         | current user profile |
+| PATCH  | `/api/me`                         | update name/phone/avatar_url |
+| PATCH  | `/api/me/password`                | change password; appends password_history |
 | GET    | `/api/profile`                    | full profile + condo + unit |
 | GET    | `/api/condominiums`               | |
 | GET    | `/api/condominiums/{id}`          | |

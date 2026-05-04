@@ -18,6 +18,7 @@ use App\Controllers\Api\DeliveryController;
 use App\Controllers\Api\DocumentController;
 use App\Controllers\Api\HealthController;
 use App\Controllers\Api\MaintenanceController;
+use App\Controllers\Api\MeController;
 use App\Controllers\Api\MessageController;
 use App\Controllers\Api\NoticeController;
 use App\Controllers\Api\PaymentController;
@@ -34,6 +35,10 @@ $router->group([ApiAuth::class], function ($router): void {
     $router->post('/api/auth/logout', [AuthController::class, 'logout']);
     $router->get('/api/auth/me',      [AuthController::class, 'me']);
     $router->get('/api/profile',      [ProfileController::class, 'show']);
+
+    $router->get('/api/me',              [MeController::class, 'show']);
+    $router->patch('/api/me',            [MeController::class, 'update']);
+    $router->patch('/api/me/password',   [MeController::class, 'changePassword']);
 
     $router->get('/api/condominiums',         [CondominiumController::class, 'index']);
     $router->get('/api/condominiums/{id}',    [CondominiumController::class, 'show']);

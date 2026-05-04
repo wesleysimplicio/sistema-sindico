@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 - 2026-05-04
+- [S1-05] `GET /api/me`, `PATCH /api/me`, `PATCH /api/me/password` endpoints via new `MeController`
+- `password_history` table added to `database/schema.sql`; password changes are appended on `PATCH /api/me/password`
+- `UserRepository` gained `updateProfile()` and `updatePassword()` methods
+- new `PasswordHistoryRepository` with `append()` and `listByUser()` helpers
+- VERSION bumped to 0.5.0
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies
