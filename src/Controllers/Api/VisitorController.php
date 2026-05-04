@@ -7,12 +7,11 @@ namespace App\Controllers\Api;
 use App\Core\Auth;
 use App\Core\Request;
 use App\Core\Response;
-use App\Repositories\MaintenanceRepository;
+use App\Repositories\VisitorRepository;
 
-final class MaintenanceController
+final class VisitorController
 {
-    private const STATUSES = ['aberto', 'em_andamento', 'aguardando', 'concluido', 'cancelado'];
-    private const PRIORITIES = ['baixa', 'media', 'alta', 'urgente'];
+    private const STATUSES = ['previsto', 'liberado', 'dentro', 'saiu', 'expirado', 'negado'];
 
     public function index(): void
     {
@@ -22,7 +21,7 @@ final class MaintenanceController
             return;
         }
         $status = $_GET['status'] ?? null;
-        $items = (new MaintenanceRepository())->listByCondominium($cid, is_string($status) ? $status : null);
+        $items = (new VisitorRepository())->listByCondominium($cid, is_string($status) ? $status : null);
         Response::json($items, 200, ['count' => count($items)]);
     }
 
@@ -33,7 +32,7 @@ final class MaintenanceController
             Response::error('Nao autenticado.', 401);
             return;
         }
-        $items = (new MaintenanceRepository())->listByUser($uid);
+        $items = (new VisitorRepository())->listByHost($uid);
         Response::json($items, 200, ['count' => count($items)]);
     }
 
@@ -46,32 +45,32 @@ final class MaintenanceController
             Response::error('Nao autenticado.', 401);
             return;
         }
-        $title = trim((string) Request::input('title', ''));
-        if ($title === '') {
-            Response::error('Titulo obrigatorio.', 422);
+        $name = trim((string) Request::input('name', ''));
+        if ($name === '') {
+            Response::error('Nome obrigatorio.', 422);
             return;
         }
-        $priority = (string) Request::input('priority', 'media');
-        if (!in_array($priority, self::PRIORITIES, true)) {
-            $priority = 'media';
-        }
-        $id = (new MaintenanceRepository())->create([
+        $expectedAt = (string) Request::input('expected_at', date('Y-m-d H:i:s', time() + 3600));
+        $token = bin2hex(random_bytes(16));
+        $id = (new VisitorRepository())->create([
             'condominium_id' => $cid,
             'unit_id'        => $user['unit_id'] ?? null,
-            'requester_id'   => $uid,
-            'title'          => $title,
-            'description'    => (string) Request::input('description', ''),
-            'category'       => (string) Request::input('category', 'geral'),
-            'priority'       => $priority,
-            'status'         => 'aberto',
+            'host_id'        => $uid,
+            'name'           => $name,
+            'document'       => (string) Request::input('document', ''),
+            'phone'          => (string) Request::input('phone', ''),
+            'qr_token'       => $token,
+            'expected_at'    => $expectedAt,
+            'status'         => 'previsto',
+            'notes'          => (string) Request::input('notes', ''),
         ]);
-        Response::json(['id' => $id], 201);
+        Response::json(['id' => $id, 'qr_token' => $token], 201);
     }
 
     public function updateStatus(array $params): void
     {
         $role = Auth::role();
-        if (!in_array($role, ['admin', 'sindico'], true)) {
+        if (!in_array($role, ['admin', 'sindico', 'porteiro'], true)) {
             Response::error('Sem permissao.', 403);
             return;
         }
@@ -81,7 +80,18 @@ final class MaintenanceController
             Response::error('Status invalido.', 422, ['allowed' => self::STATUSES]);
             return;
         }
-        $ok = (new MaintenanceRepository())->setStatus($id, $status);
+        $ok = (new VisitorRepository())->setStatus($id, $status);
         Response::json(['updated' => $ok]);
+    }
+
+    public function byQr(array $params): void
+    {
+        $token = (string) ($params['token'] ?? '');
+        $row = (new VisitorRepository())->findByQr($token);
+        if ($row === null) {
+            Response::error('QR invalido.', 404);
+            return;
+        }
+        Response::json($row);
     }
 }

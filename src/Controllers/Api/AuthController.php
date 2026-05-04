@@ -4,48 +4,73 @@ declare(strict_types=1);
 
 namespace App\Controllers\Api;
 
+use App\Core\Auth;
+use App\Core\Jwt;
+use App\Core\Request;
 use App\Core\Response;
+use App\Repositories\UserRepository;
 
-/**
- * Auth scaffold. Real authentication (password hashing, sessions, JWT)
- * will be implemented after persistence wiring.
- */
 final class AuthController
 {
-    public static function login(): void
+    public function login(): void
     {
-        $payload = self::readJsonBody();
-        $email = isset($payload['email']) ? (string) $payload['email'] : '';
+        $email = (string) Request::input('email', '');
+        $password = (string) Request::input('password', '');
 
-        if ($email === '') {
-            Response::error('Campo email obrigatorio.', 422, ['field' => 'email']);
+        if ($email === '' || $password === '') {
+            Response::error('Email e senha obrigatorios.', 422);
             return;
         }
 
+        $repo = new UserRepository();
+        $user = $repo->findByEmail($email);
+        if ($user === null || !password_verify($password, (string) $user['password_hash'])) {
+            Response::error('Credenciais invalidas.', 401);
+            return;
+        }
+
+        $repo->touchLogin((int) $user['id']);
+
+        $secret = (string) (getenv('JWT_SECRET') ?: 'change-me-in-prod');
+        $token = Jwt::encode([
+            'sub'  => (int) $user['id'],
+            'role' => $user['role'],
+            'cid'  => $user['condominium_id'] ?? null,
+        ], $secret, 86400 * 7);
+
         Response::json([
-            'token' => 'stub-token-' . bin2hex(random_bytes(8)),
-            'user'  => [
-                'id'    => 1,
-                'name'  => 'Sindico Exemplo',
-                'email' => $email,
-                'role'  => 'sindico',
-            ],
+            'token'      => $token,
+            'expires_in' => 86400 * 7,
+            'user'       => self::publicUser($user),
         ]);
     }
 
-    public static function logout(): void
+    public function me(): void
+    {
+        $user = Auth::user();
+        if ($user === null) {
+            Response::error('Nao autenticado.', 401);
+            return;
+        }
+        Response::json(['user' => self::publicUser($user)]);
+    }
+
+    public function logout(): void
     {
         Response::json(['logged_out' => true]);
     }
 
-    /** @return array<string, mixed> */
-    private static function readJsonBody(): array
+    private static function publicUser(array $u): array
     {
-        $raw = file_get_contents('php://input') ?: '';
-        if ($raw === '') {
-            return [];
-        }
-        $decoded = json_decode($raw, true);
-        return is_array($decoded) ? $decoded : [];
+        return [
+            'id'             => (int) $u['id'],
+            'name'           => $u['name'],
+            'email'          => $u['email'],
+            'role'           => $u['role'],
+            'condominium_id' => isset($u['condominium_id']) ? (int) $u['condominium_id'] : null,
+            'unit_id'        => isset($u['unit_id']) ? (int) $u['unit_id'] : null,
+            'phone'          => $u['phone'] ?? null,
+            'avatar_url'     => $u['avatar_url'] ?? null,
+        ];
     }
 }

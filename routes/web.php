@@ -5,31 +5,35 @@ declare(strict_types=1);
 /**
  * @var \App\Core\Router $router
  *
- * Web routes render server-side templates that scaffold the admin panel.
- * Visual refinement of each screen will follow references in docs/print/.
+ * Web routes:
+ * - Public: GET/POST /login, GET /logout
+ * - Authenticated admin (AdminOnly: admin|sindico): everything else
  */
 
-use App\Controllers\Web\HomeController;
+use App\Controllers\Web\DashboardController;
+use App\Controllers\Web\LoginController;
 use App\Controllers\Web\ModuleController;
+use App\Middleware\AdminOnly;
 
-$router->get('/', [HomeController::class, 'index']);
-$router->get('/dashboard', [HomeController::class, 'index']);
+$router->get('/login',   [LoginController::class, 'show']);
+$router->post('/login',  [LoginController::class, 'submit']);
+$router->get('/logout',  [LoginController::class, 'logout']);
 
-$router->get('/condominios',     [ModuleController::class, 'condominios']);
-$router->get('/unidades',        [ModuleController::class, 'unidades']);
-$router->get('/moradores',       [ModuleController::class, 'moradores']);
-$router->get('/visitantes',      [ModuleController::class, 'visitantes']);
-$router->get('/prestadores',     [ModuleController::class, 'prestadores']);
-$router->get('/veiculos',        [ModuleController::class, 'veiculos']);
-$router->get('/avisos',          [ModuleController::class, 'avisos']);
-$router->get('/documentos',      [ModuleController::class, 'documentos']);
-$router->get('/encomendas',      [ModuleController::class, 'encomendas']);
-$router->get('/solicitacoes',    [ModuleController::class, 'solicitacoes']);
-$router->get('/ocorrencias',     [ModuleController::class, 'ocorrencias']);
-$router->get('/acessos',         [ModuleController::class, 'acessos']);
-$router->get('/convites',        [ModuleController::class, 'convites']);
-$router->get('/portaria',        [ModuleController::class, 'portaria']);
-$router->get('/manutencao',      [ModuleController::class, 'manutencao']);
-$router->get('/pagamentos',      [ModuleController::class, 'pagamentos']);
-$router->get('/configuracoes',   [ModuleController::class, 'configuracoes']);
-$router->get('/perfil',          [ModuleController::class, 'perfil']);
+$router->group([AdminOnly::class], function ($router): void {
+    $router->get('/',           [DashboardController::class, 'index']);
+    $router->get('/dashboard',  [DashboardController::class, 'index']);
+
+    $router->get('/condominios', [ModuleController::class, 'condominios']);
+    $router->get('/unidades',    [ModuleController::class, 'unidades']);
+    $router->get('/moradores',   [ModuleController::class, 'moradores']);
+    $router->get('/visitantes',  [ModuleController::class, 'visitantes']);
+    $router->get('/avisos',      [ModuleController::class, 'avisos']);
+    $router->get('/documentos',  [ModuleController::class, 'documentos']);
+    $router->get('/encomendas',  [ModuleController::class, 'encomendas']);
+    $router->get('/manutencao',  [ModuleController::class, 'manutencao']);
+    $router->get('/pagamentos',  [ModuleController::class, 'pagamentos']);
+    $router->get('/reservas',    [ModuleController::class, 'reservas']);
+    $router->get('/areas',       [ModuleController::class, 'areas']);
+    $router->get('/mensagens',   [ModuleController::class, 'mensagens']);
+    $router->get('/perfil',      [ModuleController::class, 'perfil']);
+});

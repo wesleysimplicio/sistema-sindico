@@ -4,3 +4,5 @@
 /vendor/
 /node_modules/
 docs/print/_sheet_*.jpg
+/.deploy-build/
+.ftp-deploy-sync-state.json

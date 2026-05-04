@@ -7,12 +7,12 @@ namespace App\Controllers\Api;
 use App\Core\Auth;
 use App\Core\Request;
 use App\Core\Response;
-use App\Repositories\MaintenanceRepository;
+use App\Repositories\BookingRepository;
+use App\Repositories\CommonAreaRepository;
 
-final class MaintenanceController
+final class BookingController
 {
-    private const STATUSES = ['aberto', 'em_andamento', 'aguardando', 'concluido', 'cancelado'];
-    private const PRIORITIES = ['baixa', 'media', 'alta', 'urgente'];
+    private const STATUSES = ['solicitado', 'aprovado', 'rejeitado', 'cancelado', 'concluido'];
 
     public function index(): void
     {
@@ -22,7 +22,7 @@ final class MaintenanceController
             return;
         }
         $status = $_GET['status'] ?? null;
-        $items = (new MaintenanceRepository())->listByCondominium($cid, is_string($status) ? $status : null);
+        $items = (new BookingRepository())->listByCondominium($cid, is_string($status) ? $status : null);
         Response::json($items, 200, ['count' => count($items)]);
     }
 
@@ -33,7 +33,7 @@ final class MaintenanceController
             Response::error('Nao autenticado.', 401);
             return;
         }
-        $items = (new MaintenanceRepository())->listByUser($uid);
+        $items = (new BookingRepository())->listByResident($uid);
         Response::json($items, 200, ['count' => count($items)]);
     }
 
@@ -46,26 +46,35 @@ final class MaintenanceController
             Response::error('Nao autenticado.', 401);
             return;
         }
-        $title = trim((string) Request::input('title', ''));
-        if ($title === '') {
-            Response::error('Titulo obrigatorio.', 422);
+        $areaId = (int) Request::input('common_area_id', 0);
+        $startsAt = (string) Request::input('starts_at', '');
+        $endsAt   = (string) Request::input('ends_at', '');
+        if ($areaId <= 0 || $startsAt === '' || $endsAt === '') {
+            Response::error('common_area_id, starts_at, ends_at obrigatorios.', 422);
             return;
         }
-        $priority = (string) Request::input('priority', 'media');
-        if (!in_array($priority, self::PRIORITIES, true)) {
-            $priority = 'media';
+        if (strtotime($startsAt) >= strtotime($endsAt)) {
+            Response::error('Periodo invalido.', 422);
+            return;
         }
-        $id = (new MaintenanceRepository())->create([
+        $repo = new BookingRepository();
+        if ($repo->hasConflict($areaId, $startsAt, $endsAt)) {
+            Response::error('Conflito de horario.', 409);
+            return;
+        }
+        $area = (new CommonAreaRepository())->find($areaId);
+        $status = ($area && (int) $area['requires_approval'] === 1) ? 'solicitado' : 'aprovado';
+        $id = $repo->create([
             'condominium_id' => $cid,
+            'common_area_id' => $areaId,
             'unit_id'        => $user['unit_id'] ?? null,
-            'requester_id'   => $uid,
-            'title'          => $title,
-            'description'    => (string) Request::input('description', ''),
-            'category'       => (string) Request::input('category', 'geral'),
-            'priority'       => $priority,
-            'status'         => 'aberto',
+            'resident_id'    => $uid,
+            'starts_at'      => $startsAt,
+            'ends_at'        => $endsAt,
+            'status'         => $status,
+            'notes'          => (string) Request::input('notes', ''),
         ]);
-        Response::json(['id' => $id], 201);
+        Response::json(['id' => $id, 'status' => $status], 201);
     }
 
     public function updateStatus(array $params): void
@@ -81,7 +90,7 @@ final class MaintenanceController
             Response::error('Status invalido.', 422, ['allowed' => self::STATUSES]);
             return;
         }
-        $ok = (new MaintenanceRepository())->setStatus($id, $status);
+        $ok = (new BookingRepository())->update($id, ['status' => $status]);
         Response::json(['updated' => $ok]);
     }
 }

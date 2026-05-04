@@ -1,91 +1,135 @@
-# Sistema Síndico
+# Sistema Sindico
 
-Scaffold inicial de um sistema de gestão condominial em **PHP + MySQL**, preparado para evoluir para app mobile via endpoints JSON em `/api`.
+Condominium management system in **PHP 8.2 + MySQL 8**, with a server-rendered admin panel and mobile-ready REST endpoints under `/api`.
 
-## Escopo inicial
-- painel web administrativo server-side
-- bootstrap leve sem framework pesado
-- módulos base inspirados nos prints em `docs/print/`
-- estrutura pronta para persistência MySQL
-- endpoints REST stub para futura integração mobile
+PT-BR version: [README.pt-BR.md](README.pt-BR.md).
 
-## Módulos mapeados dos prints
-- condomínios
-- unidades
-- moradores
-- visitantes
-- prestadores
-- veículos
-- mural de avisos
-- documentos
-- encomendas
-- solicitações e manifestações
-- ocorrências
-- histórico de acessos
-- convites QR / avisar portaria
-- manutenção
-- pagamentos
-- perfil / configurações / notificações
+## Features
 
-## Estrutura
-- `public/` — entrypoint web
-- `src/Core/` — bootstrap, router, response, request, auth helpers
-- `src/Controllers/Web/` — telas server-side
-- `src/Controllers/Api/` — endpoints JSON
-- `database/schema.sql` — schema inicial MySQL
-- `database/seed.sql` — dados de desenvolvimento
-- `docs/print/` — referências visuais fornecidas pelo usuário
-- `docs/ui-reference-summary.md` — resumo funcional dos prints
+- Session-based web admin (sindico/admin roles).
+- JWT-based JSON API for the future mobile app (residents/porteiros).
+- Multi-tenant: every domain table scopes by `condominium_id`.
+- Modules: condominiums, units, residents, notices, maintenance, payments, deliveries, visitors, common areas, bookings, documents, messages.
+- No framework dependency — minimal custom router, PDO repositories, custom HS256 JWT.
 
-## Requisitos locais
-- PHP 8.2+
+## Stack
+
+- PHP 8.2+, PDO MySQL
+- MySQL 8 (InnoDB, utf8mb4)
+- Session + CSRF for the web panel
+- HS256 JWT (7-day TTL) for the API
+- Plain CSS in `public/assets/app.css`
+
+## Layout
+
+```
+public/         entrypoint + static assets
+routes/         web.php + api.php
+src/Core/       bootstrap, router, auth, jwt, request, response, view, db
+src/Controllers/Web   server-rendered admin
+src/Controllers/Api   mobile-ready JSON
+src/Middleware/       AdminOnly, ApiAuth, WebAuth
+src/Repositories/     one per entity
+templates/      layouts + module views
+database/       schema.sql + seed.sql
+docs/print/     UI references
+```
+
+## Requirements
+
+- PHP 8.2+ with `pdo_mysql`
 - MySQL 8+
 
-## Como rodar
-1. Copie o arquivo de ambiente:
-   ```bash
-   cp .env.example .env
-   ```
-2. Ajuste as credenciais MySQL no `.env`.
-3. Crie o banco:
-   ```sql
-   CREATE DATABASE sistema_sindico CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   ```
-4. Importe o schema e os seeds:
-   ```bash
-   mysql -u root -p sistema_sindico < database/schema.sql
-   mysql -u root -p sistema_sindico < database/seed.sql
-   ```
-5. Suba o servidor local:
-   ```bash
-   php -S 127.0.0.1:8000 -t public
-   ```
-6. Acesse:
-   - Web: `http://127.0.0.1:8000/`
-   - API health: `http://127.0.0.1:8000/api/health`
+## Setup
 
-## Endpoints iniciais
-Exemplos de endpoints planejados/iniciais:
-- `GET /api/health`
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `GET /api/condominiums`
-- `GET /api/units`
-- `GET /api/residents`
-- `GET /api/visitors`
-- `GET /api/providers`
-- `GET /api/vehicles`
-- `GET /api/notices`
-- `GET /api/documents`
-- `GET /api/deliveries`
-- `GET /api/requests`
-- `GET /api/occurrences`
-- `GET /api/access-history`
-- `GET /api/invitations`
-- `GET /api/settings`
-- `GET /api/profile`
+```bash
+cp .env.example .env
+# edit DB_* and JWT_SECRET
+mysql -u root -p -e "CREATE DATABASE sistema_sindico CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p sistema_sindico < database/schema.sql
+mysql -u root -p sistema_sindico < database/seed.sql
+php -S 127.0.0.1:8000 -t public
+```
 
-## Observações
-- O visual atual é scaffold. A implementação final das telas seguirá os prints em `docs/print/`.
-- A autenticação real, upload de arquivos, QR Code real, regras de permissão e integração facial ainda serão implementados.
-- O código e os commits seguem inglês; a interface pode usar PT-BR.
+Then open:
+
+- Web admin: <http://127.0.0.1:8000/login>
+- API health: <http://127.0.0.1:8000/api/health>
+
+## Seeded credentials
+
+All seeded users use the password `senha123`.
+
+| Role     | Email                          |
+|----------|--------------------------------|
+| admin    | admin@sistemasindico.local     |
+| sindico  | sindico@sistemasindico.local   |
+| morador  | morador@sistemasindico.local   |
+| porteiro | porteiro@sistemasindico.local  |
+
+## REST API
+
+Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST /api/auth/login`. Responses follow `{ success, data, meta }`.
+
+### Public
+
+- `GET  /api/health`
+- `POST /api/auth/login` — body `{ email, password }`
+
+### Authenticated
+
+| Method | Path                              | Notes |
+|--------|-----------------------------------|-------|
+| GET    | `/api/auth/me`                    | current user |
+| POST   | `/api/auth/logout`                | |
+| GET    | `/api/profile`                    | full profile + condo + unit |
+| GET    | `/api/condominiums`               | |
+| GET    | `/api/condominiums/{id}`          | |
+| GET    | `/api/units`                      | scoped to current condo |
+| GET    | `/api/residents`                  | role=morador |
+| GET    | `/api/notices`                    | |
+| GET    | `/api/notices/{id}`               | |
+| POST   | `/api/notices`                    | admin/sindico |
+| GET    | `/api/maintenance`                | `?status=` |
+| GET    | `/api/maintenance/mine`           | requester |
+| POST   | `/api/maintenance`                | |
+| PATCH  | `/api/maintenance/{id}`           | admin/sindico |
+| GET    | `/api/payments`                   | `?status=` |
+| GET    | `/api/payments/mine`              | resident |
+| GET    | `/api/payments/summary`           | grouped totals |
+| PATCH  | `/api/payments/{id}/pay`          | admin/sindico |
+| GET    | `/api/visitors`                   | |
+| GET    | `/api/visitors/mine`              | host |
+| POST   | `/api/visitors`                   | auto QR token |
+| PATCH  | `/api/visitors/{id}`              | admin/sindico/porteiro |
+| GET    | `/api/visitors/qr/{token}`        | porteiro lookup |
+| GET    | `/api/deliveries`                 | |
+| GET    | `/api/deliveries/mine`            | resident |
+| POST   | `/api/deliveries`                 | admin/sindico/porteiro |
+| PATCH  | `/api/deliveries/{id}/withdraw`   | |
+| GET    | `/api/common-areas`               | |
+| GET    | `/api/bookings`                   | |
+| GET    | `/api/bookings/mine`              | resident |
+| POST   | `/api/bookings`                   | conflict-checked |
+| PATCH  | `/api/bookings/{id}`              | admin/sindico |
+| GET    | `/api/documents`                  | `?category=` |
+| GET    | `/api/messages`                   | `?channel=` |
+| GET    | `/api/messages/inbox`             | |
+| POST   | `/api/messages`                   | |
+| PATCH  | `/api/messages/{id}/read`         | |
+
+## Smoke check
+
+```bash
+find src public routes templates -name '*.php' -print0 | xargs -0 -n1 php -l
+php -S 127.0.0.1:8000 -t public
+curl -s http://127.0.0.1:8000/api/health | jq
+```
+
+## Roadmap
+
+- File upload for documents/avatars
+- Real QR-code rendering
+- Push notifications channel
+- Mobile app (React Native or Flutter) consuming `/api`
+- Refine UI from `docs/print/` mockups

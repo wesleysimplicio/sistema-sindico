@@ -1,0 +1,18 @@
+# Front-controller bootstrap for shared hosting where document root is the
+# project root. Rewrite every request into the public/ folder so index.php is
+# the single entry point. If the hosting account already points the docroot at
+# public/, this file is harmless.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Block direct access to sensitive files even if rewrite is disabled.
+<FilesMatch "(^\.env|^\.env\..*|composer\.(json|lock)|\.gitignore|CHANGELOG\.md|README(\..*)?\.md|CLAUDE\.md|VERSION)$">
+    Require all denied
+</FilesMatch>
+
+Options -Indexes

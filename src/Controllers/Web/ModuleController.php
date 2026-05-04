@@ -4,69 +4,206 @@ declare(strict_types=1);
 
 namespace App\Controllers\Web;
 
+use App\Core\Auth;
 use App\Core\View;
+use App\Repositories\BookingRepository;
+use App\Repositories\CommonAreaRepository;
+use App\Repositories\CondominiumRepository;
+use App\Repositories\DeliveryRepository;
+use App\Repositories\DocumentRepository;
+use App\Repositories\MaintenanceRepository;
+use App\Repositories\MessageRepository;
+use App\Repositories\NoticeRepository;
+use App\Repositories\PaymentRepository;
+use App\Repositories\UnitRepository;
+use App\Repositories\UserRepository;
+use App\Repositories\VisitorRepository;
 
 /**
- * Generic placeholder controller for every module screen.
- * Visual refinement of each list/detail/form follows docs/print/ references.
+ * Renders admin list pages backed by repositories.
+ * Each module renders templates/modules/list.php with rows + columns config.
  */
 final class ModuleController
 {
-    /** @var array<string, array{title:string, description:string, api:string}> */
-    private static array $modules = [
-        'condominios'   => ['title' => 'Condominios',          'description' => 'Cadastro de condominios gerenciados pelo sindico.',                  'api' => '/api/condominiums'],
-        'unidades'      => ['title' => 'Unidades',             'description' => 'Apartamentos, casas e blocos vinculados aos condominios.',           'api' => '/api/units'],
-        'moradores'     => ['title' => 'Moradores',            'description' => 'Residentes ativos, dependentes e proprietarios.',                    'api' => '/api/residents'],
-        'visitantes'    => ['title' => 'Visitantes',           'description' => 'Visitantes esperados, recorrentes e historico de entrada.',          'api' => '/api/visitors'],
-        'prestadores'   => ['title' => 'Prestadores',          'description' => 'Prestadores de servico e equipe interna.',                           'api' => '/api/providers'],
-        'veiculos'      => ['title' => 'Veiculos',             'description' => 'Veiculos cadastrados de moradores e visitantes.',                    'api' => '/api/vehicles'],
-        'avisos'        => ['title' => 'Avisos',               'description' => 'Mural de avisos e comunicados oficiais.',                            'api' => '/api/notices'],
-        'documentos'    => ['title' => 'Documentos',           'description' => 'Atas, regulamentos e documentos do condominio.',                     'api' => '/api/documents'],
-        'encomendas'    => ['title' => 'Encomendas',           'description' => 'Recebimento e retirada de encomendas na portaria.',                  'api' => '/api/deliveries'],
-        'solicitacoes'  => ['title' => 'Solicitacoes',         'description' => 'Pedidos formais ao sindico ou administradora.',                      'api' => '/api/requests'],
-        'ocorrencias'   => ['title' => 'Ocorrencias',          'description' => 'Reclamacoes, incidentes e registros de ocorrencia.',                 'api' => '/api/occurrences'],
-        'acessos'       => ['title' => 'Historico de acessos', 'description' => 'Log de entradas e saidas, inclusive por reconhecimento facial.',     'api' => '/api/access-history'],
-        'convites'      => ['title' => 'Convites QR',          'description' => 'Convites com QR-code para visitantes e prestadores.',                'api' => '/api/invitations'],
-        'portaria'      => ['title' => 'Portaria',             'description' => 'Alertas e fila de atendimento da portaria.',                         'api' => '/api/portaria'],
-        'manutencao'    => ['title' => 'Manutencao',           'description' => 'Chamados de manutencao das areas comuns e privativas.',              'api' => '/api/maintenance'],
-        'pagamentos'    => ['title' => 'Pagamentos',           'description' => 'Boletos, recebimentos e inadimplencia.',                              'api' => '/api/payments'],
-        'configuracoes' => ['title' => 'Configuracoes',        'description' => 'Preferencias, notificacoes e permissoes do app.',                    'api' => '/api/settings'],
-        'perfil'        => ['title' => 'Perfil',               'description' => 'Dados do usuario logado e seguranca.',                                'api' => '/api/profile'],
-    ];
-
-    public static function condominios(): void   { self::renderModule('condominios'); }
-    public static function unidades(): void      { self::renderModule('unidades'); }
-    public static function moradores(): void     { self::renderModule('moradores'); }
-    public static function visitantes(): void    { self::renderModule('visitantes'); }
-    public static function prestadores(): void   { self::renderModule('prestadores'); }
-    public static function veiculos(): void      { self::renderModule('veiculos'); }
-    public static function avisos(): void        { self::renderModule('avisos'); }
-    public static function documentos(): void    { self::renderModule('documentos'); }
-    public static function encomendas(): void    { self::renderModule('encomendas'); }
-    public static function solicitacoes(): void  { self::renderModule('solicitacoes'); }
-    public static function ocorrencias(): void   { self::renderModule('ocorrencias'); }
-    public static function acessos(): void       { self::renderModule('acessos'); }
-    public static function convites(): void      { self::renderModule('convites'); }
-    public static function portaria(): void      { self::renderModule('portaria'); }
-    public static function manutencao(): void    { self::renderModule('manutencao'); }
-    public static function pagamentos(): void    { self::renderModule('pagamentos'); }
-    public static function configuracoes(): void { self::renderModule('configuracoes'); }
-    public static function perfil(): void        { self::renderModule('perfil'); }
-
-    private static function renderModule(string $key): void
+    public function condominios(): void
     {
-        $module = self::$modules[$key] ?? [
-            'title'       => ucfirst($key),
-            'description' => 'Modulo ainda nao mapeado.',
-            'api'         => '/api/' . $key,
-        ];
+        $rows = (new CondominiumRepository())->all();
+        $this->render('condominios', 'Condominios', 'Cadastro de condominios.', '/api/condominiums', $rows, [
+            ['key' => 'name',  'label' => 'Nome'],
+            ['key' => 'cnpj',  'label' => 'CNPJ'],
+            ['key' => 'city',  'label' => 'Cidade'],
+            ['key' => 'state', 'label' => 'UF'],
+        ]);
+    }
 
-        View::render('modules/placeholder', [
-            'title'       => $module['title'] . ' | Sistema Sindico',
+    public function unidades(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new UnitRepository())->listByCondominium($cid) : [];
+        $this->render('unidades', 'Unidades', 'Apartamentos e blocos.', '/api/units', $rows, [
+            ['key' => 'block',  'label' => 'Bloco'],
+            ['key' => 'number', 'label' => 'Numero'],
+            ['key' => 'floor',  'label' => 'Andar'],
+            ['key' => 'type',   'label' => 'Tipo'],
+        ]);
+    }
+
+    public function moradores(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new UserRepository())->listByCondominium($cid, 'morador') : [];
+        $this->render('moradores', 'Moradores', 'Residentes ativos.', '/api/residents', $rows, [
+            ['key' => 'name',        'label' => 'Nome'],
+            ['key' => 'email',       'label' => 'Email'],
+            ['key' => 'phone',       'label' => 'Telefone'],
+            ['key' => 'block',       'label' => 'Bloco'],
+            ['key' => 'unit_number', 'label' => 'Unidade'],
+        ]);
+    }
+
+    public function visitantes(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new VisitorRepository())->listByCondominium($cid) : [];
+        $this->render('visitantes', 'Visitantes', 'Visitantes esperados e historico.', '/api/visitors', $rows, [
+            ['key' => 'name',        'label' => 'Visitante'],
+            ['key' => 'document',    'label' => 'Documento'],
+            ['key' => 'host_name',   'label' => 'Anfitriao'],
+            ['key' => 'status',      'label' => 'Status'],
+            ['key' => 'expected_at', 'label' => 'Previsto', 'format' => 'datetime'],
+        ]);
+    }
+
+    public function avisos(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new NoticeRepository())->listByCondominium($cid, 100) : [];
+        $this->render('avisos', 'Avisos', 'Mural de comunicados oficiais.', '/api/notices', $rows, [
+            ['key' => 'title',        'label' => 'Titulo'],
+            ['key' => 'category',     'label' => 'Categoria'],
+            ['key' => 'pinned',       'label' => 'Fixado'],
+            ['key' => 'published_at', 'label' => 'Publicado', 'format' => 'datetime'],
+        ]);
+    }
+
+    public function documentos(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new DocumentRepository())->listByCondominium($cid) : [];
+        $this->render('documentos', 'Documentos', 'Atas, regulamentos e arquivos.', '/api/documents', $rows, [
+            ['key' => 'title',      'label' => 'Titulo'],
+            ['key' => 'category',   'label' => 'Categoria'],
+            ['key' => 'created_at', 'label' => 'Criado em', 'format' => 'datetime'],
+        ]);
+    }
+
+    public function encomendas(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new DeliveryRepository())->listByCondominium($cid) : [];
+        $this->render('encomendas', 'Encomendas', 'Recebimento e retirada na portaria.', '/api/deliveries', $rows, [
+            ['key' => 'sender',        'label' => 'Remetente'],
+            ['key' => 'courier',       'label' => 'Transportadora'],
+            ['key' => 'resident_name', 'label' => 'Destinatario'],
+            ['key' => 'block',         'label' => 'Bloco'],
+            ['key' => 'unit_number',   'label' => 'Unidade'],
+            ['key' => 'status',        'label' => 'Status'],
+            ['key' => 'received_at',   'label' => 'Recebida em', 'format' => 'datetime'],
+        ]);
+    }
+
+    public function manutencao(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new MaintenanceRepository())->listByCondominium($cid) : [];
+        $this->render('manutencao', 'Manutencao', 'Chamados de manutencao.', '/api/maintenance', $rows, [
+            ['key' => 'title',          'label' => 'Titulo'],
+            ['key' => 'priority',       'label' => 'Prioridade'],
+            ['key' => 'status',         'label' => 'Status'],
+            ['key' => 'requester_name', 'label' => 'Solicitante'],
+            ['key' => 'created_at',     'label' => 'Aberto em', 'format' => 'datetime'],
+        ]);
+    }
+
+    public function pagamentos(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new PaymentRepository())->listByCondominium($cid) : [];
+        $this->render('pagamentos', 'Pagamentos', 'Boletos e inadimplencia.', '/api/payments', $rows, [
+            ['key' => 'description',   'label' => 'Descricao'],
+            ['key' => 'resident_name', 'label' => 'Morador'],
+            ['key' => 'amount',        'label' => 'Valor', 'format' => 'money'],
+            ['key' => 'status',        'label' => 'Status'],
+            ['key' => 'due_date',      'label' => 'Vencimento', 'format' => 'date'],
+        ]);
+    }
+
+    public function reservas(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new BookingRepository())->listByCondominium($cid) : [];
+        $this->render('reservas', 'Reservas', 'Reservas de areas comuns.', '/api/bookings', $rows, [
+            ['key' => 'area_name',     'label' => 'Area'],
+            ['key' => 'resident_name', 'label' => 'Morador'],
+            ['key' => 'starts_at',     'label' => 'Inicio', 'format' => 'datetime'],
+            ['key' => 'ends_at',       'label' => 'Fim',    'format' => 'datetime'],
+            ['key' => 'status',        'label' => 'Status'],
+        ]);
+    }
+
+    public function areas(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new CommonAreaRepository())->listByCondominium($cid) : [];
+        $this->render('areas', 'Areas comuns', 'Salao de festas, churrasqueira, piscina, etc.', '/api/common-areas', $rows, [
+            ['key' => 'name',              'label' => 'Nome'],
+            ['key' => 'capacity',          'label' => 'Capacidade'],
+            ['key' => 'requires_approval', 'label' => 'Aprovacao'],
+            ['key' => 'fee',               'label' => 'Taxa', 'format' => 'money'],
+        ]);
+    }
+
+    public function mensagens(): void
+    {
+        $cid  = Auth::condominiumId();
+        $rows = $cid ? (new MessageRepository())->listByCondominium($cid) : [];
+        $this->render('mensagens', 'Mensagens', 'Comunicacao com sindico, portaria e suporte.', '/api/messages', $rows, [
+            ['key' => 'channel',    'label' => 'Canal'],
+            ['key' => 'subject',    'label' => 'Assunto'],
+            ['key' => 'from_name',  'label' => 'De'],
+            ['key' => 'to_name',    'label' => 'Para'],
+            ['key' => 'created_at', 'label' => 'Enviada em', 'format' => 'datetime'],
+        ]);
+    }
+
+    public function perfil(): void
+    {
+        $u     = Auth::user();
+        $cid   = Auth::condominiumId();
+        $condo = $cid ? (new CondominiumRepository())->find($cid) : null;
+        $unit  = ($u && !empty($u['unit_id'])) ? (new UnitRepository())->find((int) $u['unit_id']) : null;
+
+        View::render('modules/perfil', [
+            'title'  => 'Perfil | Sistema Sindico',
+            'active' => 'perfil',
+            'user'   => $u,
+            'condo'  => $condo,
+            'unit'   => $unit,
+        ]);
+    }
+
+    /** @param array<int,array<string,mixed>> $rows
+     *  @param array<int,array{key:string,label:string,format?:string}> $columns */
+    private function render(string $key, string $title, string $description, string $api, array $rows, array $columns): void
+    {
+        View::render('modules/list', [
+            'title'       => $title . ' | Sistema Sindico',
             'active'      => $key,
-            'moduleTitle' => $module['title'],
-            'description' => $module['description'],
-            'apiEndpoint' => $module['api'],
+            'moduleTitle' => $title,
+            'description' => $description,
+            'apiEndpoint' => $api,
+            'rows'        => $rows,
+            'columns'     => $columns,
         ]);
     }
 }

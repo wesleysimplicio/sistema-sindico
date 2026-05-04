@@ -6,9 +6,9 @@ namespace App\Controllers\Api;
 
 use App\Core\Auth;
 use App\Core\Response;
-use App\Repositories\UnitRepository;
+use App\Repositories\CommonAreaRepository;
 
-final class UnitController
+final class CommonAreaController
 {
     public function index(): void
     {
@@ -17,7 +17,7 @@ final class UnitController
             Response::error('Condominio nao definido.', 422);
             return;
         }
-        $list = (new UnitRepository())->listByCondominium($cid);
-        Response::json($list, 200, ['count' => count($list)]);
+        $items = (new CommonAreaRepository())->listByCondominium($cid);
+        Response::json($items, 200, ['count' => count($items)]);
     }
 }
