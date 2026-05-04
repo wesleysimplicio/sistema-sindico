@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1 - 2026-05-04
+- S1-08: `GET /api/dashboard` for porteiro role — returns deliveries today (list + count), expected visitors (list + count), recent access events (visitor entries/exits) scoped to the condominium
+- S1-06/S1-07: same endpoint dispatches morador (notices/maintenance/delivery counters) and sindico (open maintenance, deliveries today, recent notices, recent visitors) payloads
+- new `Api\DashboardController` wired in `routes/api.php`
+- `DeliveryRepository`: added `countToday()` and `listToday()` helpers
+- `VisitorRepository`: added optional `$limit` to `listByCondominium()`, plus `listExpected()` and `listRecentAccessEvents()` helpers
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies
