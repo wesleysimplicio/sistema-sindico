@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 use App\Controllers\Api\AuthController;
 use App\Controllers\Api\BookingController;
+use App\Controllers\Api\DashboardController;
 use App\Controllers\Api\CommonAreaController;
 use App\Controllers\Api\CondominiumController;
 use App\Controllers\Api\DeliveryController;
@@ -31,9 +32,10 @@ $router->get('/api/health',       [HealthController::class, 'index']);
 $router->post('/api/auth/login',  [AuthController::class,   'login']);
 
 $router->group([ApiAuth::class], function ($router): void {
-    $router->post('/api/auth/logout', [AuthController::class, 'logout']);
-    $router->get('/api/auth/me',      [AuthController::class, 'me']);
-    $router->get('/api/profile',      [ProfileController::class, 'show']);
+    $router->post('/api/auth/logout', [AuthController::class,      'logout']);
+    $router->get('/api/auth/me',      [AuthController::class,      'me']);
+    $router->get('/api/profile',      [ProfileController::class,   'show']);
+    $router->get('/api/dashboard',    [DashboardController::class, 'index']);
 
     $router->get('/api/condominiums',         [CondominiumController::class, 'index']);
     $router->get('/api/condominiums/{id}',    [CondominiumController::class, 'show']);

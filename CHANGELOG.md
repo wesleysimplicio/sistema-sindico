@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 - 2026-05-04
+- role-based home dashboards: morador (notices/maintenance/deliveries counters), síndico (residents/units/maintenance/payments), porteiro (deliveries today/expected visitors)
+- new `GET /api/dashboard` endpoint returning role-scoped counters, shortcuts and lists (S1-06/07/08)
+- new `templates/modules/dashboard_morador.php` and `templates/modules/dashboard_porteiro.php`
+- web `DashboardController` dispatches to role-specific template; morador and porteiro can now reach `/dashboard` via `WebAuth` instead of `AdminOnly`
+- `templates/layouts/app.php` now renders role-specific navigation (morador/porteiro see trimmed nav)
+- `DeliveryRepository::listTodayByCondominium` added for porteiro daily view
+- VERSION bumped to 0.5.0
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies

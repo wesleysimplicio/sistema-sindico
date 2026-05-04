@@ -14,15 +14,20 @@ use App\Controllers\Web\DashboardController;
 use App\Controllers\Web\LoginController;
 use App\Controllers\Web\ModuleController;
 use App\Middleware\AdminOnly;
+use App\Middleware\WebAuth;
 
 $router->get('/login',   [LoginController::class, 'show']);
 $router->post('/login',  [LoginController::class, 'submit']);
 $router->get('/logout',  [LoginController::class, 'logout']);
 
-$router->group([AdminOnly::class], function ($router): void {
-    $router->get('/',           [DashboardController::class, 'index']);
-    $router->get('/dashboard',  [DashboardController::class, 'index']);
+// Dashboard is accessible to every authenticated role.
+$router->group([WebAuth::class], function ($router): void {
+    $router->get('/',          [DashboardController::class, 'index']);
+    $router->get('/dashboard', [DashboardController::class, 'index']);
+    $router->get('/perfil',    [ModuleController::class,    'perfil']);
+});
 
+$router->group([AdminOnly::class], function ($router): void {
     $router->get('/condominios', [ModuleController::class, 'condominios']);
     $router->get('/unidades',    [ModuleController::class, 'unidades']);
     $router->get('/moradores',   [ModuleController::class, 'moradores']);
@@ -35,5 +40,4 @@ $router->group([AdminOnly::class], function ($router): void {
     $router->get('/reservas',    [ModuleController::class, 'reservas']);
     $router->get('/areas',       [ModuleController::class, 'areas']);
     $router->get('/mensagens',   [ModuleController::class, 'mensagens']);
-    $router->get('/perfil',      [ModuleController::class, 'perfil']);
 });

@@ -26,6 +26,21 @@ final class DeliveryRepository extends BaseRepository
         return $stmt->fetchAll();
     }
 
+    public function listTodayByCondominium(int $condominiumId, int $limit = 20): array
+    {
+        $sql = 'SELECT d.*, u.name AS resident_name, un.block, un.number AS unit_number
+                FROM deliveries d
+                LEFT JOIN users u ON u.id = d.resident_id
+                LEFT JOIN units un ON un.id = d.unit_id
+                WHERE d.condominium_id = :cid
+                  AND DATE(d.received_at) = CURDATE()
+                ORDER BY d.received_at DESC
+                LIMIT ' . (int) $limit;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['cid' => $condominiumId]);
+        return $stmt->fetchAll();
+    }
+
     public function listByResident(int $residentId): array
     {
         $stmt = $this->pdo->prepare(

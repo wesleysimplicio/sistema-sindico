@@ -13,13 +13,25 @@ use App\Repositories\NoticeRepository;
 use App\Repositories\PaymentRepository;
 use App\Repositories\UnitRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\VisitorRepository;
 
 final class DashboardController
 {
     public function index(): void
     {
-        $cid  = Auth::condominiumId();
         $user = Auth::user();
+        $role = Auth::role() ?? 'morador';
+
+        match ($role) {
+            'morador'  => $this->renderMorador($user),
+            'porteiro' => $this->renderPorteiro($user),
+            default    => $this->renderSindico($user),
+        };
+    }
+
+    private function renderSindico(?array $user): void
+    {
+        $cid = Auth::condominiumId();
 
         $stats = [
             'residents'          => 0,
@@ -53,6 +65,77 @@ final class DashboardController
             'stats'    => $stats,
             'notices'  => $notices,
             'payments' => $payments,
+        ]);
+    }
+
+    private function renderMorador(?array $user): void
+    {
+        $cid = Auth::condominiumId();
+        $uid = Auth::id();
+
+        $condo          = null;
+        $notices        = [];
+        $maintenance    = [];
+        $deliveries     = [];
+        $openMaint      = 0;
+        $pendingDeliv   = 0;
+
+        if ($cid !== null) {
+            $condo = (new CondominiumRepository())->find($cid);
+            $notices = array_slice((new NoticeRepository())->listByCondominium($cid, 5), 0, 5);
+        }
+
+        if ($uid !== null) {
+            $maintenance  = array_slice((new MaintenanceRepository())->listByUser($uid), 0, 5);
+            $deliveries   = array_slice((new DeliveryRepository())->listByResident($uid),  0, 5);
+            $openMaint    = count(array_filter(
+                (new MaintenanceRepository())->listByUser($uid),
+                static fn($m) => $m['status'] === 'aberto'
+            ));
+            $pendingDeliv = count(array_filter(
+                (new DeliveryRepository())->listByResident($uid),
+                static fn($d) => $d['status'] === 'aguardando'
+            ));
+        }
+
+        View::render('modules/dashboard_morador', [
+            'title'       => 'Início | Sistema Síndico',
+            'active'      => 'dashboard',
+            'user'        => $user,
+            'condo'       => $condo,
+            'notices'     => $notices,
+            'maintenance' => $maintenance,
+            'deliveries'  => $deliveries,
+            'openMaint'   => $openMaint,
+            'pendingDeliv' => $pendingDeliv,
+        ]);
+    }
+
+    private function renderPorteiro(?array $user): void
+    {
+        $cid = Auth::condominiumId();
+
+        $condo            = null;
+        $deliveriesToday  = [];
+        $expectedVisitors = [];
+
+        if ($cid !== null) {
+            $condo            = (new CondominiumRepository())->find($cid);
+            $deliveriesToday  = (new DeliveryRepository())->listTodayByCondominium($cid);
+            $expectedVisitors = array_slice(
+                (new VisitorRepository())->listByCondominium($cid, 'esperado'),
+                0,
+                10
+            );
+        }
+
+        View::render('modules/dashboard_porteiro', [
+            'title'            => 'Portaria | Sistema Síndico',
+            'active'           => 'dashboard',
+            'user'             => $user,
+            'condo'            => $condo,
+            'deliveriesToday'  => $deliveriesToday,
+            'expectedVisitors' => $expectedVisitors,
         ]);
     }
 }

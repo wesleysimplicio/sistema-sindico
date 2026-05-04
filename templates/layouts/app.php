@@ -6,7 +6,10 @@
 use App\Core\Auth;
 
 $active = $active ?? '';
-$nav = [
+$me     = Auth::user();
+$role   = $me['role'] ?? 'morador';
+
+$navAdmin = [
     ['key' => 'dashboard',    'label' => 'Dashboard',    'route' => '/dashboard'],
     ['key' => 'condominios',  'label' => 'Condominios',  'route' => '/condominios'],
     ['key' => 'unidades',     'label' => 'Unidades',     'route' => '/unidades'],
@@ -22,7 +25,30 @@ $nav = [
     ['key' => 'mensagens',    'label' => 'Mensagens',    'route' => '/mensagens'],
     ['key' => 'perfil',       'label' => 'Perfil',       'route' => '/perfil'],
 ];
-$me = Auth::user();
+
+$navMorador = [
+    ['key' => 'dashboard',  'label' => 'Início',     'route' => '/dashboard'],
+    ['key' => 'avisos',     'label' => 'Avisos',     'route' => '/avisos'],
+    ['key' => 'manutencao', 'label' => 'Manutenção', 'route' => '/manutencao'],
+    ['key' => 'encomendas', 'label' => 'Encomendas', 'route' => '/encomendas'],
+    ['key' => 'visitantes', 'label' => 'Visitantes', 'route' => '/visitantes'],
+    ['key' => 'documentos', 'label' => 'Documentos', 'route' => '/documentos'],
+    ['key' => 'reservas',   'label' => 'Reservas',   'route' => '/reservas'],
+    ['key' => 'perfil',     'label' => 'Perfil',     'route' => '/perfil'],
+];
+
+$navPorteiro = [
+    ['key' => 'dashboard',  'label' => 'Portaria',   'route' => '/dashboard'],
+    ['key' => 'encomendas', 'label' => 'Encomendas', 'route' => '/encomendas'],
+    ['key' => 'visitantes', 'label' => 'Visitantes', 'route' => '/visitantes'],
+    ['key' => 'perfil',     'label' => 'Perfil',     'route' => '/perfil'],
+];
+
+$nav = match ($role) {
+    'morador'  => $navMorador,
+    'porteiro' => $navPorteiro,
+    default    => $navAdmin,
+};
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
