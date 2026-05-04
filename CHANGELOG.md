@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0 - 2026-05-04
+- password recovery flow: `POST /api/auth/forgot-password`, `POST /api/auth/verify-code`, `POST /api/auth/reset-password` (S1-01, S1-02)
+- `password_reset_tokens` table added to `database/schema.sql` and `database/migrations/001_password_reset_tokens.sql`
+- `UserRepository` extended with `findByDocument`, `createPasswordResetToken`, `findValidResetByCode`, `attachResetToken`, `findValidResetByToken`, `markResetTokenUsed`, `updatePassword`
+- web recovery screens (prints 3-5): `/forgot-password`, `/verify-code`, `/reset-password` with CSRF protection, session-based state hand-off and password strength validation
+- login template (`templates/auth/login.php`) updated with "Esqueci minha senha" link and info-banner support (print 2 → print 3 bridge)
+- `AuthController::validatePassword` public static method enforces ≥8 chars, ≥1 letter, ≥1 digit; reused by both API and web layers
+- `public/assets/app.css`: added `.alert.info`, `.alert.success`, `.link-muted` styles
+- `docs/specs/PASSWORD-RULES.md`: documents current and planned password rules, recovery flow, and table locations
+- VERSION bumped to 0.5.0
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies

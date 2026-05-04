@@ -19,6 +19,13 @@ $router->get('/login',   [LoginController::class, 'show']);
 $router->post('/login',  [LoginController::class, 'submit']);
 $router->get('/logout',  [LoginController::class, 'logout']);
 
+$router->get('/forgot-password',   [LoginController::class, 'forgotPasswordShow']);
+$router->post('/forgot-password',  [LoginController::class, 'forgotPasswordSubmit']);
+$router->get('/verify-code',       [LoginController::class, 'verifyCodeShow']);
+$router->post('/verify-code',      [LoginController::class, 'verifyCodeSubmit']);
+$router->get('/reset-password',    [LoginController::class, 'resetPasswordShow']);
+$router->post('/reset-password',   [LoginController::class, 'resetPasswordSubmit']);
+
 $router->group([AdminOnly::class], function ($router): void {
     $router->get('/',           [DashboardController::class, 'index']);
     $router->get('/dashboard',  [DashboardController::class, 'index']);

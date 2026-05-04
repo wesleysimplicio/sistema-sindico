@@ -27,8 +27,11 @@ use App\Controllers\Api\UnitController;
 use App\Controllers\Api\VisitorController;
 use App\Middleware\ApiAuth;
 
-$router->get('/api/health',       [HealthController::class, 'index']);
-$router->post('/api/auth/login',  [AuthController::class,   'login']);
+$router->get('/api/health',                    [HealthController::class, 'index']);
+$router->post('/api/auth/login',               [AuthController::class,   'login']);
+$router->post('/api/auth/forgot-password',     [AuthController::class,   'forgotPassword']);
+$router->post('/api/auth/verify-code',         [AuthController::class,   'verifyCode']);
+$router->post('/api/auth/reset-password',      [AuthController::class,   'resetPassword']);
 
 $router->group([ApiAuth::class], function ($router): void {
     $router->post('/api/auth/logout', [AuthController::class, 'logout']);

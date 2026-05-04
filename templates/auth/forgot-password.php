@@ -16,27 +16,23 @@
   <main class="auth-wrap">
     <div class="auth-card">
       <h1>Sistema Sindico</h1>
-      <p class="muted">Entre para acessar o painel.</p>
+      <p class="muted">Informe seu CPF ou documento cadastrado para receber o codigo de verificacao.</p>
       <?php if (!empty($error)): ?>
         <div class="alert error"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
       <?php if (!empty($info)): ?>
         <div class="alert info"><?= htmlspecialchars($info) ?></div>
       <?php endif; ?>
-      <form method="post" action="/login" novalidate>
+      <form method="post" action="/forgot-password" novalidate>
         <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf) ?>">
         <label>
-          Email
-          <input type="email" name="email" required autofocus>
+          CPF / Documento
+          <input type="text" name="document" required autofocus autocomplete="off" placeholder="000.000.000-00">
         </label>
-        <label>
-          Senha
-          <input type="password" name="password" required>
-        </label>
-        <button type="submit" class="btn primary">Entrar</button>
+        <button type="submit" class="btn primary">Enviar codigo</button>
       </form>
       <p class="muted small" style="margin-top:12px;">
-        <a href="/forgot-password" class="link-muted">Esqueci minha senha</a>
+        <a href="/login" class="link-muted">Voltar para o login</a>
       </p>
     </div>
   </main>

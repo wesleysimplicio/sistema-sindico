@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS deliveries;
 DROP TABLE IF EXISTS payments;
 DROP TABLE IF EXISTS maintenance_requests;
 DROP TABLE IF EXISTS notices;
+DROP TABLE IF EXISTS password_reset_tokens;
 DROP TABLE IF EXISTS api_tokens;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS units;
@@ -267,6 +268,19 @@ CREATE TABLE notification_preferences (
   enabled         TINYINT(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (user_id, pref_key),
   CONSTRAINT fk_pref_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE password_reset_tokens (
+  id          BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id     BIGINT UNSIGNED NOT NULL,
+  code        CHAR(6) NOT NULL,
+  reset_token VARCHAR(64) DEFAULT NULL,
+  used_at     DATETIME DEFAULT NULL,
+  expires_at  DATETIME NOT NULL,
+  created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_prt_user (user_id),
+  KEY idx_prt_token (reset_token),
+  CONSTRAINT fk_prt_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE audit_logs (

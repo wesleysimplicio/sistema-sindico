@@ -1,7 +1,6 @@
 <?php
 /** @var string $title */
 /** @var string|null $error */
-/** @var string|null $info */
 /** @var string $csrf */
 ?>
 <!DOCTYPE html>
@@ -16,27 +15,29 @@
   <main class="auth-wrap">
     <div class="auth-card">
       <h1>Sistema Sindico</h1>
-      <p class="muted">Entre para acessar o painel.</p>
+      <p class="muted">Crie uma nova senha para sua conta.</p>
       <?php if (!empty($error)): ?>
         <div class="alert error"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
-      <?php if (!empty($info)): ?>
-        <div class="alert info"><?= htmlspecialchars($info) ?></div>
-      <?php endif; ?>
-      <form method="post" action="/login" novalidate>
+      <form method="post" action="/reset-password" novalidate>
         <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf) ?>">
         <label>
-          Email
-          <input type="email" name="email" required autofocus>
+          Nova senha
+          <input type="password" name="new_password" required autofocus autocomplete="new-password"
+                 minlength="8" placeholder="Minimo 8 caracteres">
         </label>
         <label>
-          Senha
-          <input type="password" name="password" required>
+          Confirmar nova senha
+          <input type="password" name="confirm_password" required autocomplete="new-password"
+                 minlength="8" placeholder="Repita a senha">
         </label>
-        <button type="submit" class="btn primary">Entrar</button>
+        <button type="submit" class="btn primary">Salvar nova senha</button>
       </form>
       <p class="muted small" style="margin-top:12px;">
-        <a href="/forgot-password" class="link-muted">Esqueci minha senha</a>
+        A senha deve ter no minimo 8 caracteres, com pelo menos uma letra e um numero.
+      </p>
+      <p class="muted small">
+        <a href="/login" class="link-muted">Cancelar</a>
       </p>
     </div>
   </main>
