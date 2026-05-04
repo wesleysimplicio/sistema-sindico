@@ -72,7 +72,7 @@ final class MembershipController
             }
         }
 
-        $secret = (string) (getenv('JWT_SECRET') ?: 'change-me-in-prod');
+        $secret = (string) ($_ENV['JWT_SECRET'] ?? getenv('JWT_SECRET') ?: '');
         $token = Jwt::encode([
             'sub'  => (int) $user['id'],
             'role' => $role,

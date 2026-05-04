@@ -19,7 +19,7 @@ final class ApiAuth
             Response::error('Token nao informado', 401);
             return false;
         }
-        $secret = (string) (getenv('JWT_SECRET') ?: 'change-me-in-prod');
+        $secret = (string) ($_ENV['JWT_SECRET'] ?? getenv('JWT_SECRET') ?: '');
         $payload = Jwt::decode($token, $secret);
         if ($payload === null || !isset($payload['sub'])) {
             Response::error('Token invalido ou expirado', 401);
@@ -30,6 +30,9 @@ final class ApiAuth
             Response::error('Usuario nao encontrado', 401);
             return false;
         }
+        $user['condominium_id'] = $payload['cid'] ?? $user['condominium_id'];
+        $user['role']           = $payload['role'] ?? $user['role'];
+        $user['unit_id']        = $payload['uid']  ?? $user['unit_id'];
         Auth::setApiUser($user);
         return true;
     }

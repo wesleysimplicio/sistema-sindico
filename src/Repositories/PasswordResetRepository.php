@@ -84,4 +84,12 @@ final class PasswordResetRepository extends BaseRepository
         );
         $stmt->execute(['id' => $id]);
     }
+
+    public function incrementAttempt(int $id): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE password_resets SET attempt_count = attempt_count + 1 WHERE id = :id'
+        );
+        $stmt->execute(['id' => $id]);
+    }
 }

@@ -65,6 +65,12 @@ final class ProfileController
                 Response::error("Campo {$key} nao pode ser vazio.", 422);
                 return;
             }
+            if ($key === 'avatar_url') {
+                if (!filter_var($trimmed, FILTER_VALIDATE_URL) || !str_starts_with($trimmed, 'https://')) {
+                    Response::error('Campo avatar_url deve ser uma URL https valida.', 422);
+                    return;
+                }
+            }
             $fields[$key] = $trimmed;
         }
 

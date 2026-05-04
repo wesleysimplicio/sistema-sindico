@@ -31,6 +31,8 @@ final class AuthRecoveryController
 
         $user = (new UserRepository())->findByDocumentOrEmail($document, $email);
         if ($user === null) {
+            // Equalize timing with the hit path to prevent enumeration via response time.
+            password_hash('dummy', PASSWORD_DEFAULT);
             // Neutral response to prevent enumeration.
             Response::json(['message' => self::NEUTRAL_MESSAGE]);
             return;
@@ -43,8 +45,7 @@ final class AuthRecoveryController
         $resets->invalidatePendingForUser((int) $user['id']);
         $resets->createForUser((int) $user['id'], $codeHash, self::CODE_TTL_SECONDS);
 
-        // Dev-only logging; no email sender wired in this sprint.
-        error_log("[forgot-password] user_id={$user['id']} code={$code}");
+        // TODO: dispatch via mail/SMS sender — never log the plaintext code
 
         Response::json(['message' => self::NEUTRAL_MESSAGE]);
     }
@@ -70,7 +71,16 @@ final class AuthRecoveryController
 
         $resets = new PasswordResetRepository();
         $row = $resets->findActiveByUser((int) $user['id']);
-        if ($row === null || !password_verify($code, (string) $row['code_hash'])) {
+        if ($row === null) {
+            Response::error('Codigo invalido ou expirado.', 400);
+            return;
+        }
+        if ((int) ($row['attempt_count'] ?? 0) >= 5) {
+            Response::error('Tentativas excedidas. Solicite um novo codigo.', 429);
+            return;
+        }
+        if (!password_verify($code, (string) $row['code_hash'])) {
+            $resets->incrementAttempt((int) $row['id']);
             Response::error('Codigo invalido ou expirado.', 400);
             return;
         }
@@ -116,13 +126,18 @@ final class AuthRecoveryController
             return;
         }
 
+        $oldHash = (string) $user['password_hash'];
+        if ($oldHash !== '' && password_verify($newPassword, $oldHash)) {
+            Response::error('A nova senha deve ser diferente da atual.', 422);
+            return;
+        }
+
         $history = new PasswordHistoryRepository();
         if ($history->matchesAnyRecent($userId, $newPassword, 5)) {
             Response::error('Nao reutilize uma das ultimas 5 senhas.', 422);
             return;
         }
 
-        $oldHash = (string) $user['password_hash'];
         $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
 
         $userRepo->setPassword($userId, $newHash);

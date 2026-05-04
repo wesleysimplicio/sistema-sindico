@@ -61,18 +61,20 @@ final class DashboardController
 
         $stmt = $pdo->prepare(
             "SELECT COUNT(*) AS c FROM maintenance_requests
-             WHERE requester_id = :uid AND status IN ('aberto','em_andamento')"
+             WHERE requester_id = :uid
+               AND condominium_id = :cid
+               AND status IN ('aberto','em_andamento')"
         );
-        $stmt->execute(['uid' => $userId]);
+        $stmt->execute(['uid' => $userId, 'cid' => $condominiumId]);
         $maintenanceOpenMine = (int) ($stmt->fetch()['c'] ?? 0);
 
         $deliveriesPendingMine = 0;
         if ($unitId !== null) {
             $stmt = $pdo->prepare(
                 'SELECT COUNT(*) AS c FROM deliveries
-                 WHERE unit_id = :uid AND withdrawn_at IS NULL'
+                 WHERE unit_id = :uid AND condominium_id = :cid AND withdrawn_at IS NULL'
             );
-            $stmt->execute(['uid' => $unitId]);
+            $stmt->execute(['uid' => $unitId, 'cid' => $condominiumId]);
             $deliveriesPendingMine = (int) ($stmt->fetch()['c'] ?? 0);
         }
 
@@ -112,7 +114,8 @@ final class DashboardController
         $noticesRecent = (new NoticeRepository())->listByCondominium($condominiumId, 5);
 
         $stmt = $pdo->prepare(
-            'SELECT * FROM visitors
+            'SELECT id, name, document, unit_id, status, expected_at, qr_token, created_at
+             FROM visitors
              WHERE condominium_id = :cid
              ORDER BY created_at DESC
              LIMIT 5'

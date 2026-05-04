@@ -311,6 +311,7 @@ CREATE TABLE password_resets (
   reset_token_hash  VARCHAR(255) DEFAULT NULL,
   expires_at        DATETIME NOT NULL,
   used_at           DATETIME DEFAULT NULL,
+  attempt_count     TINYINT UNSIGNED NOT NULL DEFAULT 0,
   created_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_pr_user (user_id),
   CONSTRAINT fk_pr_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
