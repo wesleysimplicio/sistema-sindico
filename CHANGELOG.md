@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 - 2026-05-04
+- [S1-01] `POST /api/auth/forgot-password` — issues a 6-digit recovery code looked up by `document`; code is bcrypt-hashed with a 15-minute TTL stored in the new `password_reset_tokens` table; response is intentionally neutral to prevent user-enumeration; plain code is written to `error_log` only in non-production environments
+- new migration `database/migrations/001_password_reset_tokens.sql` and matching table added to `database/schema.sql`
+- `UserRepository`: added `findByDocument`, `saveResetToken`, `deleteResetTokens`
+- VERSION bumped to 0.4.1
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies

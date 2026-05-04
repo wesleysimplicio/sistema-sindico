@@ -9,9 +9,57 @@ use App\Core\Jwt;
 use App\Core\Request;
 use App\Core\Response;
 use App\Repositories\UserRepository;
+use DateTimeImmutable;
+use DateTimeZone;
 
 final class AuthController
 {
+    /**
+     * POST /api/auth/forgot-password
+     *
+     * Accepts { document } and issues a 6-digit recovery code.
+     * Response is intentionally neutral (same body whether the document exists or not)
+     * to avoid user-enumeration.
+     * In development the plain code is logged via error_log(); in production only
+     * the hash is stored.
+     */
+    public function forgotPassword(): void
+    {
+        $document = trim((string) Request::input('document', ''));
+
+        if ($document === '') {
+            Response::error('Campo document obrigatório.', 422);
+            return;
+        }
+
+        $repo = new UserRepository();
+        $user = $repo->findByDocument($document);
+
+        if ($user !== null) {
+            $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $hash = password_hash($code, PASSWORD_BCRYPT);
+            $expiresAt = new DateTimeImmutable('+15 minutes', new DateTimeZone('UTC'));
+
+            $repo->saveResetToken((int) $user['id'], $hash, $expiresAt);
+
+            // Development-only logging — never expose the plain code in a response.
+            if (getenv('APP_ENV') !== 'production') {
+                error_log(sprintf(
+                    '[forgot-password] document=%s user_id=%d code=%s expires_at=%s',
+                    $document,
+                    (int) $user['id'],
+                    $code,
+                    $expiresAt->format('Y-m-d H:i:s')
+                ));
+            }
+        }
+
+        // Neutral response — same shape regardless of whether the document matched.
+        Response::json([
+            'message' => 'Se o documento estiver cadastrado, um código de recuperação foi enviado.',
+        ]);
+    }
+
     public function login(): void
     {
         $email = (string) Request::input('email', '');
