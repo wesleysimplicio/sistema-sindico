@@ -1,0 +1,1 @@
+-- Baseline: see database/schema.sql (covers structure up to v0.4.0).
