@@ -52,3 +52,10 @@ INSERT INTO documents (condominium_id, uploaded_by, title, description, file_pat
 
 INSERT INTO messages (condominium_id, from_user_id, to_user_id, subject, body, channel) VALUES
   (1, 3, 2, 'Duvida sobre taxa', 'Boa tarde, gostaria de tirar uma duvida sobre o boleto.', 'sindico');
+
+INSERT INTO memberships (user_id, condominium_id, role, is_active) VALUES
+  (1, 1, 'admin',    1),
+  (2, 1, 'sindico',  1),
+  (3, 1, 'morador',  1),
+  (4, 1, 'morador',  1),
+  (5, 1, 'porteiro', 1);

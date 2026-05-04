@@ -30,6 +30,19 @@ final class ApiAuth
             Response::error('Usuario nao encontrado', 401);
             return false;
         }
+
+        // Apply scoped claims from the token so tenant scoping works correctly
+        // after POST /api/memberships/select issues a new token.
+        if (array_key_exists('cid', $payload)) {
+            $user['condominium_id'] = $payload['cid'];
+        }
+        if (array_key_exists('uid', $payload)) {
+            $user['unit_id'] = $payload['uid'];
+        }
+        if (isset($payload['role'])) {
+            $user['role'] = $payload['role'];
+        }
+
         Auth::setApiUser($user);
         return true;
     }

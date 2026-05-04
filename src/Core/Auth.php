@@ -72,6 +72,12 @@ final class Auth
         return $u && isset($u['condominium_id']) ? (int) $u['condominium_id'] : null;
     }
 
+    public static function unitId(): ?int
+    {
+        $u = self::user();
+        return $u && isset($u['unit_id']) ? (int) $u['unit_id'] : null;
+    }
+
     public static function setApiUser(array $user): void
     {
         self::$user = $user;

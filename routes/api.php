@@ -18,6 +18,7 @@ use App\Controllers\Api\DeliveryController;
 use App\Controllers\Api\DocumentController;
 use App\Controllers\Api\HealthController;
 use App\Controllers\Api\MaintenanceController;
+use App\Controllers\Api\MembershipController;
 use App\Controllers\Api\MessageController;
 use App\Controllers\Api\NoticeController;
 use App\Controllers\Api\PaymentController;
@@ -37,6 +38,10 @@ $router->group([ApiAuth::class], function ($router): void {
 
     $router->get('/api/condominiums',         [CondominiumController::class, 'index']);
     $router->get('/api/condominiums/{id}',    [CondominiumController::class, 'show']);
+
+    $router->get('/api/memberships',                       [MembershipController::class, 'index']);
+    $router->get('/api/memberships/{condoId}/units',       [MembershipController::class, 'units']);
+    $router->post('/api/memberships/select',               [MembershipController::class, 'select']);
 
     $router->get('/api/units',                [UnitController::class, 'index']);
     $router->get('/api/residents',            [ResidentController::class, 'index']);
