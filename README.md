@@ -126,6 +126,25 @@ php -S 127.0.0.1:8000 -t public
 curl -s http://127.0.0.1:8000/api/health | jq
 ```
 
+## Automation: PR conflict resolver
+
+Workflow [`resolve-conflicts.yml`](.github/workflows/resolve-conflicts.yml) merges the PR base branch into the PR head automatically.
+
+Triggers (either):
+
+- Add the label `resolve-conflicts` to the PR.
+- Comment `/resolve-conflicts` on the PR.
+
+Outcomes:
+
+- Clean merge → bot pushes the merge commit and posts a success comment.
+- Conflicts → bot posts a comment listing conflicting files plus local resolution steps; workflow run fails so it is visible.
+
+Notes:
+
+- Uses the default `GITHUB_TOKEN` (no extra secrets).
+- Cross-repo PRs require *Allow edits by maintainers*.
+
 ## Roadmap
 
 - File upload for documents/avatars

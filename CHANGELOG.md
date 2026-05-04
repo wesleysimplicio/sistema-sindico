@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.2 - 2026-05-04
+- new `.github/workflows/resolve-conflicts.yml`: triggered by `resolve-conflicts` label or `/resolve-conflicts` PR comment; uses `pull_request_target` + `GITHUB_TOKEN` (no extra secrets) to merge the PR base branch into the head; on clean merge pushes the merge commit and posts a success comment; on conflict aborts the merge, lists conflicting files via `git diff --diff-filter=U`, posts manual resolution steps, and fails the run; blocks fork PRs without `maintainerCanModify`
+- new `.github/copilot/agents/conflict-resolver.yml` descriptive fallback documenting the agent triggers, capabilities, and behavior for Copilot Extensions/Agents tooling
+- README: new "Automation: PR conflict resolver" section with invocation steps and outcomes
+- VERSION bumped to 0.5.2
+
 ## 0.5.1 - 2026-05-04
 - new GitHub Actions workflow `.github/workflows/ci.yml`: PHP 8.1/8.2/8.3 lint matrix, optional composer install + audit, optional PHPStan/PHPCS via reviewdog, optional npm lint/build, HostGator release artifact build with manifest upload
 - new `.github/workflows/code-review.yml`: AI review job calls Claude (`claude-sonnet-4-6`) on every PR diff (200KB cap), posts pt-BR comment with severity buckets; `static-review` job runs `php -l` + PHPStan + PHPCS through reviewdog as inline PR comments; `security-scan` job runs gitleaks for secret detection

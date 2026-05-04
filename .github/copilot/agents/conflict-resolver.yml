@@ -1,0 +1,41 @@
+name: conflict-resolver
+description: >
+  Auxiliary descriptor for the PR conflict resolution agent. The active
+  implementation lives in .github/workflows/resolve-conflicts.yml. This file
+  documents intent and acts as a fallback descriptor for GitHub Copilot
+  Extensions / Agents when supported.
+
+triggers:
+  - type: pull_request_label
+    label: resolve-conflicts
+  - type: pull_request_comment
+    pattern: "/resolve-conflicts"
+
+capabilities:
+  - read_pull_request
+  - read_repository_contents
+  - write_repository_contents
+  - comment_pull_request
+
+behavior:
+  goal: Merge the PR base branch into the PR head branch and push the result.
+  on_clean_merge:
+    - push merged head to origin
+    - comment success on the PR
+  on_conflict:
+    - abort merge
+    - list conflicting files via `git diff --name-only --diff-filter=U`
+    - comment manual resolution steps on the PR
+    - exit non-zero so the workflow run is flagged
+
+permissions:
+  contents: write
+  pull-requests: write
+
+auth:
+  token: GITHUB_TOKEN
+
+notes:
+  - Cross-repo PRs require 'Allow edits by maintainers' enabled.
+  - Workflow uses `pull_request_target` so it runs in the base repo context
+    with write access; do not check out untrusted PR code for execution.
