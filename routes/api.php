@@ -20,6 +20,9 @@ use App\Controllers\Api\DashboardController;
 use App\Controllers\Api\DeliveryController;
 use App\Controllers\Api\DocumentController;
 use App\Controllers\Api\HealthController;
+use App\Controllers\Api\InvitationController;
+use App\Controllers\Api\InvitationGuestController;
+use App\Controllers\Api\LoginInvitationController;
 use App\Controllers\Api\MaintenanceController;
 use App\Controllers\Api\MembershipController;
 use App\Controllers\Api\MessageController;
@@ -40,6 +43,8 @@ $router->post('/api/auth/login',  [AuthController::class,   'login']);
 $router->post('/api/auth/forgot-password', [AuthRecoveryController::class, 'forgotPassword']);
 $router->post('/api/auth/verify-code',     [AuthRecoveryController::class, 'verifyCode']);
 $router->post('/api/auth/reset-password',  [AuthRecoveryController::class, 'resetPassword']);
+
+$router->post('/api/auth/invitations/{token}/accept', [LoginInvitationController::class, 'accept']);
 
 $router->group([ApiAuth::class], function ($router): void {
     $router->post('/api/auth/logout', [AuthController::class, 'logout']);
@@ -96,11 +101,29 @@ $router->group([ApiAuth::class], function ($router): void {
     $router->get('/api/payments/summary',     [PaymentController::class, 'summary']);
     $router->patch('/api/payments/{id}/pay',  [PaymentController::class, 'markPaid']);
 
-    $router->get('/api/visitors',             [VisitorController::class, 'index']);
-    $router->get('/api/visitors/mine',        [VisitorController::class, 'mine']);
-    $router->post('/api/visitors',            [VisitorController::class, 'store']);
-    $router->patch('/api/visitors/{id}',      [VisitorController::class, 'updateStatus']);
-    $router->get('/api/visitors/qr/{token}',  [VisitorController::class, 'byQr']);
+    $router->get('/api/visitors',                 [VisitorController::class, 'index']);
+    $router->get('/api/visitors/mine',            [VisitorController::class, 'mine']);
+    $router->get('/api/visitors/history',         [VisitorController::class, 'history']);
+    $router->post('/api/visitors',                [VisitorController::class, 'store']);
+    $router->patch('/api/visitors/{id}',          [VisitorController::class, 'updateStatus']);
+    $router->post('/api/visitors/{id}/qr',        [VisitorController::class, 'qrFor']);
+    $router->post('/api/visitors/{id}/check-in',  [VisitorController::class, 'checkIn']);
+    $router->post('/api/visitors/{id}/check-out', [VisitorController::class, 'checkOut']);
+    $router->get('/api/visitors/qr/{token}',      [VisitorController::class, 'byQr']);
+
+    $router->get('/api/invitations',                          [InvitationController::class, 'index']);
+    $router->post('/api/invitations',                         [InvitationController::class, 'store']);
+    $router->get('/api/invitations/{id}',                     [InvitationController::class, 'show']);
+    $router->patch('/api/invitations/{id}',                   [InvitationController::class, 'update']);
+    $router->delete('/api/invitations/{id}',                  [InvitationController::class, 'destroy']);
+    $router->get('/api/invitations/{id}/guests',              [InvitationGuestController::class, 'index']);
+    $router->post('/api/invitations/{id}/guests',             [InvitationGuestController::class, 'store']);
+    $router->patch('/api/invitations/{id}/guests/{gid}',      [InvitationGuestController::class, 'updateStatus']);
+    $router->delete('/api/invitations/{id}/guests/{gid}',     [InvitationGuestController::class, 'destroy']);
+
+    $router->get('/api/login-invitations',         [LoginInvitationController::class, 'index']);
+    $router->post('/api/login-invitations',        [LoginInvitationController::class, 'store']);
+    $router->delete('/api/login-invitations/{id}', [LoginInvitationController::class, 'destroy']);
 
     $router->get('/api/deliveries',           [DeliveryController::class, 'index']);
     $router->get('/api/deliveries/mine',      [DeliveryController::class, 'mine']);

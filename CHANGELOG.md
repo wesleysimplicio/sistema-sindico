@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.0 - 2026-05-04
+- Sprint 3 — Visitors and invitations delivered (issues `#23` `#24` `#25` `#26` `#27` `#28` `#29` `#30` `#31`)
+- visitors expansion: `POST /api/visitors` now stores `photo_url` (https-only validation), generates `qr_token` + `qr_expires_at` (10 min TTL), strict `Y-m-d H:i:s` `expected_at` validation; new `POST /api/visitors/{id}/qr` rotates the token (host or porter/sindico/admin); new `POST /api/visitors/{id}/check-in` and `/check-out` enforce porter/sindico/admin role and write to both `access_logs` (operational) and `audit_logs` (compliance); `GET /api/visitors/history` returns finalized rows (saiu/expirado/negado) joined with units; `GET /api/visitors/qr/{token}` now validates the QR is non-expired and condominium-scoped via `findValidByQr`
+- invitations CRUD `GET/POST/GET{id}/PATCH/DELETE /api/invitations`: title/unit_id/starts_at required, ends_at >= starts_at, status enum `draft|active|done|cancelled`, host-or-admin/sindico-only on update/delete, moradores see only their own (or `?mine=1`); audit on every mutation
+- invitation guests nested CRUD `GET/POST /api/invitations/{id}/guests`, `PATCH /api/invitations/{id}/guests/{gid}`, `DELETE .../{gid}`: status flow `expected → arrived → no_show`, `arrived_at` auto-set on arrival, parent invitation tenant check on every call
+- login invitations: `POST /api/login-invitations` (admin/sindico) issues a 32-byte hex token (stored as SHA-256, returned only once), 72h TTL, role enum `sindico|morador|porteiro`, optional `unit_id` validated against condominium; `GET /api/login-invitations` lists with optional `?accepted=0|1` filter; `DELETE /api/login-invitations/{id}` only removes pending invites; public `POST /api/auth/invitations/{token}/accept` creates the user (bcrypt password >=8 chars), creates the membership, marks the invite accepted
+- new tables: `invitations`, `invitation_guests`, `access_logs`; `visitors` gains `photo_url` + `qr_expires_at`; `audit_logs` gains `condominium_id` (idempotent migration `database/migrations/005_sprint_3.sql` via INFORMATION_SCHEMA guards)
+- new repositories: `AuditLogRepository::record(...)` writes JSON-encoded payloads (`JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES`), `AccessLogRepository::record(...)` validates direction/result enums, `InvitationRepository`, `InvitationGuestRepository`; `VisitorRepository` gains `findValidByQr/refreshQr/listHistory`; `LoginInvitationRepository` gains `listByCondominium/findInCondo/deleteIfPending`
+- 16 new API routes registered (3 invitations, 4 invitation guests, 4 visitors, 3 login invitations + 1 public `accept` outside `ApiAuth`)
+- VERSION bumped to 0.7.0
+
 ## 0.6.0 - 2026-05-04
 - Sprint 2 — Unit hub delivered (issues `#12` `#13` `#14` `#15` `#16` `#17` `#18` `#19` `#20` `#21` `#22`)
 - new aggregator endpoint `GET /api/condominium/{c}/units/{u}/overview` returning the unit, residents, vehicles, contractors, last visitor, last delivery and the latest porter notes; visitor and delivery lookups now filtered server-side via `findLatestForUnit` instead of paging the whole condo list

@@ -41,4 +41,46 @@ final class LoginInvitationRepository extends BaseRepository
         $stmt->execute(['id' => $id]);
         return $stmt->rowCount() > 0;
     }
+
+    public function listByCondominium(int $condominiumId, ?bool $accepted = null, int $limit = 200): array
+    {
+        $limit = max(1, min(500, $limit));
+        $sql = 'SELECT id, condominium_id, unit_id, email, phone, full_name, document, role,
+                       expires_at, accepted_at, created_by_user_id, created_at
+                FROM login_invitations
+                WHERE condominium_id = :cid';
+        $params = ['cid' => $condominiumId];
+        if ($accepted === true) {
+            $sql .= ' AND accepted_at IS NOT NULL';
+        } elseif ($accepted === false) {
+            $sql .= ' AND accepted_at IS NULL';
+        }
+        $sql .= ' ORDER BY id DESC LIMIT ' . $limit;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    public function findInCondo(int $id, int $condominiumId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, condominium_id, unit_id, email, phone, full_name, document, role,
+                    expires_at, accepted_at, created_by_user_id, created_at
+             FROM login_invitations
+             WHERE id = :id AND condominium_id = :cid LIMIT 1'
+        );
+        $stmt->execute(['id' => $id, 'cid' => $condominiumId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function deleteIfPending(int $id, int $condominiumId): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'DELETE FROM login_invitations
+             WHERE id = :id AND condominium_id = :cid AND accepted_at IS NULL'
+        );
+        $stmt->execute(['id' => $id, 'cid' => $condominiumId]);
+        return $stmt->rowCount() > 0;
+    }
 }
