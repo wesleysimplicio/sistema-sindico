@@ -16,6 +16,9 @@ DROP TABLE IF EXISTS payments;
 DROP TABLE IF EXISTS maintenance_requests;
 DROP TABLE IF EXISTS notices;
 DROP TABLE IF EXISTS api_tokens;
+DROP TABLE IF EXISTS password_history;
+DROP TABLE IF EXISTS password_resets;
+DROP TABLE IF EXISTS memberships;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS units;
 DROP TABLE IF EXISTS condominiums;
@@ -61,13 +64,15 @@ CREATE TABLE users (
   email           VARCHAR(150) NOT NULL,
   password_hash   VARCHAR(255) NOT NULL,
   role            ENUM('admin','sindico','morador','porteiro') NOT NULL DEFAULT 'morador',
-  phone           VARCHAR(30) DEFAULT NULL,
-  document        VARCHAR(20) DEFAULT NULL,
-  avatar_url      VARCHAR(255) DEFAULT NULL,
-  active          TINYINT(1) NOT NULL DEFAULT 1,
-  last_login_at   DATETIME DEFAULT NULL,
-  created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  phone               VARCHAR(30) DEFAULT NULL,
+  document            VARCHAR(20) DEFAULT NULL,
+  avatar_url          VARCHAR(255) DEFAULT NULL,
+  locale              VARCHAR(8) NOT NULL DEFAULT 'pt-BR',
+  active              TINYINT(1) NOT NULL DEFAULT 1,
+  last_login_at       DATETIME DEFAULT NULL,
+  password_changed_at DATETIME DEFAULT NULL,
+  created_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uniq_email (email),
   KEY idx_users_condo (condominium_id),
   KEY idx_users_unit (unit_id),
@@ -281,4 +286,42 @@ CREATE TABLE audit_logs (
   KEY idx_audit_user (user_id),
   KEY idx_audit_action (action),
   CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE memberships (
+  id              BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id         BIGINT UNSIGNED NOT NULL,
+  condominium_id  BIGINT UNSIGNED NOT NULL,
+  unit_id         BIGINT UNSIGNED DEFAULT NULL,
+  role            ENUM('admin','sindico','morador','porteiro') NOT NULL,
+  is_active       TINYINT(1) NOT NULL DEFAULT 1,
+  created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_membership (user_id, condominium_id, role),
+  KEY idx_membership_condo (condominium_id),
+  CONSTRAINT fk_mb_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_mb_condo FOREIGN KEY (condominium_id) REFERENCES condominiums(id) ON DELETE CASCADE,
+  CONSTRAINT fk_mb_unit FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE password_resets (
+  id                BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id           BIGINT UNSIGNED NOT NULL,
+  code_hash         VARCHAR(255) NOT NULL,
+  reset_token_hash  VARCHAR(255) DEFAULT NULL,
+  expires_at        DATETIME NOT NULL,
+  used_at           DATETIME DEFAULT NULL,
+  attempt_count     TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  created_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_pr_user (user_id),
+  CONSTRAINT fk_pr_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE password_history (
+  id              BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  user_id         BIGINT UNSIGNED NOT NULL,
+  password_hash   VARCHAR(255) NOT NULL,
+  created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_ph_user (user_id),
+  CONSTRAINT fk_ph_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

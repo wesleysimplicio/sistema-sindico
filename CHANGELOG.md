@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0 - 2026-05-04
+- Sprint 1 — Foundations delivered (issues `#2` `#3` `#5` `#6` `#7` `#9` `#10` `#11`)
+- password recovery flow: `POST /api/auth/forgot-password`, `/api/auth/verify-code`, `/api/auth/reset-password` — 6-digit code stored hashed, 15-min TTL, lockout after 5 failed verifications, `password_history` keeps last 5 hashes and blocks reuse, equal-timing path on user-not-found to prevent enumeration
+- memberships: new `memberships` table; `GET /api/memberships` lists scopes for the authenticated user with synthesized fallback for legacy single-condominium users; `POST /api/memberships/select` re-issues the JWT with `cid`/`role` matching the chosen membership
+- `ApiAuth` middleware now merges JWT `cid`/`role`/`uid` claims into the user context, so membership scope swap is honored by every downstream handler
+- profile self-service: `PATCH /api/me` (name/phone/avatar_url/locale, with `https://` URL validation), `PATCH /api/me/password` (requires current password, blocks reuse of last 5)
+- role-based dashboard `GET /api/dashboard` switching between `morador`, `sindico`, `porteiro` payloads, every query scoped by `condominium_id`
+- security hardening: boot-time guard requires `JWT_SECRET` length >= 32 and aborts with `RuntimeException` otherwise; removed `'change-me-in-prod'` fallback from middleware/controllers; plaintext OTP no longer written to error log
+- schema additions: `memberships`, `password_resets` (with `attempt_count`), `password_history`, plus `users.locale` and `users.password_changed_at`; idempotent migrations under `database/migrations/` using `INFORMATION_SCHEMA`-guarded `ADD COLUMN`
+- VERSION bumped to 0.5.0
+
 ## 0.4.0 - 2026-05-04
 - new product spec `docs/specs/SCREENS-ANALYSIS.md` mapping all 64 mobile prints to UI components, REST surface, ~20 new tables, column ALTERs on 7 existing tables, permissions matrix, integrations and shared UI patterns
 - new sprint plan `docs/specs/SPRINT-BACKLOG.md` with 7 sprints (S1 Foundations → S7 Polish/v1.0.0), Definition of Done, story points (Fibonacci), risks and dependencies

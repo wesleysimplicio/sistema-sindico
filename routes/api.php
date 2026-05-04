@@ -11,13 +11,16 @@ declare(strict_types=1);
  */
 
 use App\Controllers\Api\AuthController;
+use App\Controllers\Api\AuthRecoveryController;
 use App\Controllers\Api\BookingController;
 use App\Controllers\Api\CommonAreaController;
 use App\Controllers\Api\CondominiumController;
+use App\Controllers\Api\DashboardController;
 use App\Controllers\Api\DeliveryController;
 use App\Controllers\Api\DocumentController;
 use App\Controllers\Api\HealthController;
 use App\Controllers\Api\MaintenanceController;
+use App\Controllers\Api\MembershipController;
 use App\Controllers\Api\MessageController;
 use App\Controllers\Api\NoticeController;
 use App\Controllers\Api\PaymentController;
@@ -30,10 +33,23 @@ use App\Middleware\ApiAuth;
 $router->get('/api/health',       [HealthController::class, 'index']);
 $router->post('/api/auth/login',  [AuthController::class,   'login']);
 
+$router->post('/api/auth/forgot-password', [AuthRecoveryController::class, 'forgotPassword']);
+$router->post('/api/auth/verify-code',     [AuthRecoveryController::class, 'verifyCode']);
+$router->post('/api/auth/reset-password',  [AuthRecoveryController::class, 'resetPassword']);
+
 $router->group([ApiAuth::class], function ($router): void {
     $router->post('/api/auth/logout', [AuthController::class, 'logout']);
     $router->get('/api/auth/me',      [AuthController::class, 'me']);
     $router->get('/api/profile',      [ProfileController::class, 'show']);
+
+    $router->get('/api/me',            [ProfileController::class, 'show']);
+    $router->patch('/api/me',          [ProfileController::class, 'update']);
+    $router->patch('/api/me/password', [ProfileController::class, 'changePassword']);
+
+    $router->get('/api/memberships',         [MembershipController::class, 'index']);
+    $router->post('/api/memberships/select', [MembershipController::class, 'select']);
+
+    $router->get('/api/dashboard',           [DashboardController::class, 'index']);
 
     $router->get('/api/condominiums',         [CondominiumController::class, 'index']);
     $router->get('/api/condominiums/{id}',    [CondominiumController::class, 'show']);
