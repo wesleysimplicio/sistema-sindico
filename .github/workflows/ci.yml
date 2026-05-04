@@ -50,46 +50,72 @@ jobs:
   static-analysis:
     name: Static analysis (PHPStan / PHPCS)
     runs-on: ubuntu-latest
-    if: hashFiles('composer.json') != ''
     needs: php-lint
     steps:
       - uses: actions/checkout@v4
 
+      - name: Detect composer.json
+        id: detect
+        run: |
+          if [ -f composer.json ]; then
+            echo "has_composer=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_composer=false" >> "$GITHUB_OUTPUT"
+            echo "no composer.json — skipping static analysis"
+          fi
+
       - uses: shivammathur/setup-php@v2
+        if: steps.detect.outputs.has_composer == 'true'
         with:
           php-version: '8.2'
           coverage: none
           tools: composer:v2, phpstan, phpcs
 
-      - run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Composer install
+        if: steps.detect.outputs.has_composer == 'true'
+        run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: PHPStan
-        if: hashFiles('phpstan.neon*') != ''
+        if: steps.detect.outputs.has_composer == 'true' && hashFiles('phpstan.neon*') != ''
         run: vendor/bin/phpstan analyse --no-progress --error-format=github
 
       - name: PHPCS
-        if: hashFiles('phpcs.xml*') != ''
+        if: steps.detect.outputs.has_composer == 'true' && hashFiles('phpcs.xml*') != ''
         run: vendor/bin/phpcs --report=full
 
   frontend-checks:
     name: Frontend lint (JS/CSS)
     runs-on: ubuntu-latest
-    if: hashFiles('package.json') != ''
     steps:
       - uses: actions/checkout@v4
 
+      - name: Detect package.json
+        id: detect
+        run: |
+          if [ -f package.json ]; then
+            echo "has_pkg=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_pkg=false" >> "$GITHUB_OUTPUT"
+            echo "no package.json — skipping frontend checks"
+          fi
+
       - uses: actions/setup-node@v4
+        if: steps.detect.outputs.has_pkg == 'true'
         with:
           node-version: '20'
           cache: 'npm'
 
-      - run: npm ci || npm install
+      - name: Install
+        if: steps.detect.outputs.has_pkg == 'true'
+        run: npm ci || npm install
 
       - name: Lint
+        if: steps.detect.outputs.has_pkg == 'true'
         run: |
           if npm run | grep -qE '^\s+lint'; then npm run lint; else echo "no lint script"; fi
 
       - name: Build
+        if: steps.detect.outputs.has_pkg == 'true'
         run: |
           if npm run | grep -qE '^\s+build'; then npm run build; else echo "no build script"; fi
 
