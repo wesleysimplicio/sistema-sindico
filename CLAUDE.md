@@ -1,28 +1,51 @@
-# Sistema Síndico
+# CLAUDE.md
 
-## Objective
-Build a condominium management system in PHP + MySQL with a web admin panel and API endpoints prepared for a future mobile app.
+> Espelha [AGENTS.md](./AGENTS.md). Edite ambos juntos OU mantenha apenas `AGENTS.md` e `ln -sf AGENTS.md CLAUDE.md`. Claude Code lê arquivo regular, não símbolo, por isso a duplicação aqui.
 
-## Constraints
-- Keep dependencies minimal unless clearly necessary.
-- Prefer plain PHP structure with clear separation of concerns.
-- The user will place UI reference images in `docs/print/`.
-- Create and maintain `docs/print/` even before screenshots arrive.
-- Prepare REST-style JSON endpoints under `/api` for future mobile consumption.
-- Use Brazilian Portuguese in product-facing copy where relevant.
-- Code, commit messages, and technical docs can be in English.
+Stack canônica: **PHP 8.2 + MySQL 8** sem framework, custom router em `src/Core/Router.php`, autoload PSR-4 (`App\` to `src/`). E2E via Playwright, regression de API via Newman, deploy em HostGator via GitHub Actions.
 
-## Initial scope
-- Authentication scaffold
-- Dashboard scaffold
-- Condominium, residents, units, notices, maintenance requests, payments scaffolding
-- Database schema and migration bootstrap
-- API readiness for future mobile app
+---
 
-## Validation
-- Prefer local PHP syntax validation and lightweight smoke tests.
-- Do not assume deployment/CI.
+## Comandos importantes
 
-## Git flow
-- Keep CHANGELOG.md and VERSION updated when meaningful project milestones are added.
-- Use small, clear commits.
+```bash
+# setup local (1a vez)
+cp .env.example .env                             # ajustar DB_*, JWT_SECRET (>= 32 chars)
+mysql -u root -p < database/schema.sql           # cria schema
+mysql -u root -p sistema_sindico < database/seed.sql   # popula usuarios + dados de exemplo
+
+# desenvolvimento
+php -S 127.0.0.1:8000 -t public                  # front controller em :8000
+
+# qualidade (PHP)
+php -l src/Controllers/Api/AuthController.php    # syntax check arquivo a arquivo
+find src -name "*.php" -exec php -l {} \;        # syntax check em massa
+
+# regression API (Newman)
+npx newman run tests/api/sistema-sindico.postman_collection.json \
+  --env-var baseUrl=http://127.0.0.1:8000
+
+# E2E web (Playwright)
+npx playwright install                           # instala browsers (1a vez)
+BASE_URL=http://127.0.0.1:8000 npx playwright test
+npx playwright show-report
+
+# release HostGator
+scripts/build-hostgator-release.sh               # gera .deploy-build/
+scripts/verify-hostgator-release.sh              # checa integridade do pacote
+scripts/smoke-public-site.sh                     # smoke test de URLs publicas pos-deploy
+
+# git/PR
+git checkout -b feat/<task-id>-<slug>
+gh pr create --fill                              # usa template de PR
+gh run watch                                     # acompanha CI do branch atual
+gh issue list --state open --label sprint:7      # ver itens da sprint corrente
+```
+
+Credenciais seed default (so dev): `admin@sistemasindico.local` / `senha123` (idem para `sindico`, `morador`, `porteiro`). Trocar antes de qualquer deploy fora de localhost.
+
+---
+
+## Tudo mais (workflow, DoD, padrões, proibições, skills, atalhos)
+
+Ver [AGENTS.md](./AGENTS.md). Mudou algo lá? Reflete aqui na seção "Comandos importantes" e no `.github/copilot-instructions.md`.

@@ -32,3 +32,38 @@ When reviewing pull requests in this repository, focus on:
 ## Out of scope for review
 - Mobile app code (lives in a separate repo).
 - Deploy workflow `.github/workflows/deploy-hostgator.yml` — already battle-tested.
+
+## Local commands (mirrored from AGENTS.md / CLAUDE.md)
+
+```bash
+# setup
+cp .env.example .env
+mysql -u root -p < database/schema.sql
+mysql -u root -p sistema_sindico < database/seed.sql
+
+# dev server
+php -S 127.0.0.1:8000 -t public
+
+# syntax check
+find src -name "*.php" -exec php -l {} \;
+
+# API regression (Newman + Postman collection)
+npx newman run tests/api/sistema-sindico.postman_collection.json \
+  --env-var baseUrl=http://127.0.0.1:8000
+
+# E2E web (Playwright)
+npx playwright install
+BASE_URL=http://127.0.0.1:8000 npx playwright test
+
+# release pipeline (HostGator)
+scripts/build-hostgator-release.sh
+scripts/verify-hostgator-release.sh
+scripts/smoke-public-site.sh
+
+# git / PR
+gh pr create --fill
+gh run watch
+gh issue list --state open --label sprint:7
+```
+
+Default seed credentials (dev only): `admin@sistemasindico.local` / `senha123` (same for `sindico`, `morador`, `porteiro`). Rotate before any non-localhost deploy.

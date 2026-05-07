@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 - 2026-05-07
+- Adopted `agentic-starter` scaffold: `.specs/{product,architecture,workflow,sprints}/`, `.skills/`, `.claude/{settings.json,hooks/}`, `.codex/config.toml`, `.github/{workflows/dod.yml,PULL_REQUEST_TEMPLATE.md,ISSUE_TEMPLATE/,copilot-instructions.md}`, `playwright.config.ts`, `presentation/`. Existing `AGENTS.md`/`CLAUDE.md` preserved.
+- `.specs/product/{VISION,DOMAIN,PERSONAS}.md` mapped to condominium, user, unit, visitor+invitation, payment.
+- `.specs/architecture/{DESIGN,PATTERNS}.md` aligned with PHP/MySQL stack.
+- `.specs/sprints/BACKLOG.md` from real TODOs.
+- Bump VERSION 1.0.0 -> 1.1.0 (minor: structure added).
+
 ## 1.0.0 - 2026-05-04
 - Sprint 7 — Polish & release: Playwright E2E scaffold, Newman API regression, full security pass, performance pass, README endpoint matrix + ER diagram, v1.0.0 cut.
 - security — cross-tenant guard: `PaymentController::markPaid` now resolves the row via `findInCondo` and `PaymentRepository::markPaid` requires `condominium_id` in the UPDATE itself; returns 404 instead of leaking existence.
