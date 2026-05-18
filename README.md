@@ -67,8 +67,15 @@ Notes:
 
 - App: <http://127.0.0.1:8000>
 - MySQL from the host: `127.0.0.1:3307`
+- Optional Redis from the host: `127.0.0.1:6380`
 - DB name/user/password: `sistema_sindico` / `sistema_sindico` / `sistema_sindico`
 - The first boot imports `database/schema.sql`, then every SQL file in `database/migrations/`, and finally `database/seed.sql` when the DB volume is empty.
+- Default rate limit driver is `mysql`. To validate the optional Redis driver locally:
+
+```bash
+RATE_LIMIT_DRIVER=redis docker compose --profile redis up -d --build
+```
+
 - To reset the Docker database and re-apply the seed:
 
 ```bash
@@ -268,7 +275,7 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 ## Security posture
 
 - **JWT** HS256 + `jti` claim; revocation via `api_tokens`. Secret rejected if shorter than 32 bytes (`Jwt::MIN_SECRET_BYTES`).
-- **Rate limiting** sliding-window per `bucket+ip` in `rate_limits` table (login, 2FA verify, forgot/verify code, webhook). Returns 429 + `Retry-After`.
+- **Rate limiting** supports `RATE_LIMIT_DRIVER=mysql|redis`; MySQL remains default for HostGator, while Redis is optional for Docker/managed-cache environments. Returns the same `X-RateLimit-*` headers plus `429 + Retry-After`.
 - **Tenant isolation** every domain query joins or filters by `condominium_id`. Mutations include `WHERE condominium_id = :cid` in the UPDATE/DELETE itself.
 - **SSRF** outbound gate device calls resolve hostname, reject private/reserved IPs (`FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE`), pin DNS via `CURLOPT_RESOLVE`, restrict to HTTP/HTTPS, no redirects.
 - **Path traversal** every file_path validated by `StoragePath::isSafeRelative` and resolved with `realpath` boundary check against `storage/uploads/`.

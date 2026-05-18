@@ -166,6 +166,30 @@ jobs:
         if: always()
         run: docker compose down -v
 
+  rate-limit-smoke:
+    name: Rate limit smoke (${{ matrix.driver }})
+    runs-on: ubuntu-latest
+    needs: docker-smoke
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        driver: [mysql, redis]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate rate limit driver
+        run: bash scripts/validate-rate-limit-driver.sh ${{ matrix.driver }}
+
   build-release:
     name: Build HostGator release artifact
     runs-on: ubuntu-latest

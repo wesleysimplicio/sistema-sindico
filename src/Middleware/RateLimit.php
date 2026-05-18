@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
-use App\Core\Database;
 use App\Core\Request;
+use App\Core\RateLimitStore;
+use App\Core\RateLimitStoreFactory;
 use App\Core\Response;
-use PDO;
 use Throwable;
 
 /**
@@ -28,59 +28,17 @@ use Throwable;
  */
 final class RateLimit
 {
+    private static ?RateLimitStore $store = null;
+
     public static function enforce(string $bucket, int $max, int $windowSec, string $key): bool
     {
         if ($max <= 0 || $windowSec <= 0) {
             return true;
         }
-        $pdo = self::pdo();
-        if ($pdo === null) {
-            // Fail-open if DB unreachable — auth still requires valid creds; logged elsewhere.
-            return true;
-        }
-        $hash = hash('sha256', $bucket . '|' . $key);
-        try {
-            $pdo->beginTransaction();
-            $sel = $pdo->prepare(
-                'SELECT id, count, UNIX_TIMESTAMP(window_start) AS ts
-                 FROM rate_limits
-                 WHERE bucket = :b AND key_hash = :k
-                 FOR UPDATE'
-            );
-            $sel->execute(['b' => $bucket, 'k' => $hash]);
-            $row = $sel->fetch(PDO::FETCH_ASSOC);
-            $now = time();
 
-            if ($row === false) {
-                $ins = $pdo->prepare(
-                    'INSERT INTO rate_limits (bucket, key_hash, count, window_start)
-                     VALUES (:b, :k, 1, FROM_UNIXTIME(:ts))'
-                );
-                $ins->execute(['b' => $bucket, 'k' => $hash, 'ts' => $now]);
-                $count = 1;
-            } else {
-                $age = $now - (int) $row['ts'];
-                if ($age >= $windowSec) {
-                    $upd = $pdo->prepare(
-                        'UPDATE rate_limits
-                         SET count = 1, window_start = FROM_UNIXTIME(:ts)
-                         WHERE id = :id'
-                    );
-                    $upd->execute(['ts' => $now, 'id' => (int) $row['id']]);
-                    $count = 1;
-                } else {
-                    $upd = $pdo->prepare(
-                        'UPDATE rate_limits SET count = count + 1 WHERE id = :id'
-                    );
-                    $upd->execute(['id' => (int) $row['id']]);
-                    $count = ((int) $row['count']) + 1;
-                }
-            }
-            $pdo->commit();
+        try {
+            $count = self::store()->increment($bucket, $key, $windowSec);
         } catch (Throwable $e) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
             return true; // fail-open on storage error
         }
 
@@ -106,13 +64,8 @@ final class RateLimit
         return $extra === '' ? $ip : $ip . '|' . $extra;
     }
 
-    private static function pdo(): ?PDO
+    private static function store(): RateLimitStore
     {
-        try {
-            $config = require dirname(__DIR__, 2) . '/config/app.php';
-            return Database::connection($config['db']);
-        } catch (Throwable $e) {
-            return null;
-        }
+        return self::$store ??= RateLimitStoreFactory::make();
     }
 }

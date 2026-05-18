@@ -19,4 +19,10 @@ return [
         'password' => $env('DB_PASSWORD', ''),
         'charset'  => 'utf8mb4',
     ],
+
+    'rate_limit' => [
+        'driver'       => strtolower((string) $env('RATE_LIMIT_DRIVER', 'mysql')),
+        'redis_url'    => $env('REDIS_URL', 'redis://redis:6379/0'),
+        'redis_prefix' => 'sistema-sindico:rate-limit',
+    ],
 ];

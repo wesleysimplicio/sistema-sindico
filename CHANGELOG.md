@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.3 - 2026-05-18
+- Sprint 8 hardening — scalable rate limiting: introduced `RateLimitStore` with `MySQLRateLimitStore` (default) and `RedisRateLimitStore` selected via `RATE_LIMIT_DRIVER`, keeping the same `X-RateLimit-*` and `429` contract for clients while opening an optional Redis path for non-HostGator environments.
+- runtime + validation: `docker-compose.yml` now includes an optional Redis profile, `.env.example` documents `RATE_LIMIT_DRIVER` / `REDIS_URL`, and `scripts/validate-rate-limit-driver.sh` plus `tests/api/rate-limit.postman_collection.json` validate the 429 flow through Newman for both drivers.
+- architecture + planning: accepted `ADR-003-rate-limit-driver.md`, updated Sprint 8 backlog/status bookkeeping for `#94`, and documented why HostGator keeps `mysql` as the default production driver in v1.x.
+
 ## 1.1.2 - 2026-05-18
 - Sprint 8 hardening — Docker onboarding: added an official `Dockerfile` multi-stage plus `docker-compose.yml` with `app` (`php:8.2-apache`) and `db` (`mysql:8.0`) services, persistent DB volume, Apache docroot at `public/`, and automatic `schema.sql` + `database/migrations/*.sql` + `seed.sql` import on first boot so the containerized DB matches the current app schema.
 - CI runtime validation: `.github/workflows/ci.yml` now includes a `docker-smoke` job that builds the stack, waits for `GET /api/health`, and verifies seeded admin login inside the Dockerized runtime.

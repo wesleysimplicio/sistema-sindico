@@ -1,0 +1,66 @@
+{
+  "info": {
+    "name": "Sistema Sindico — rate limit drivers",
+    "_postman_id": "ssind-rate-limit-001",
+    "description": "Newman smoke validating 429 behavior for the configured rate limit driver.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "rateEmail", "value": "rate-limit@example.com" },
+    { "key": "allowedAttempts", "value": "3" },
+    { "key": "totalAttempts", "value": "4" },
+    { "key": "attempt", "value": "0" }
+  ],
+  "item": [
+    {
+      "name": "Forgot password rate limit",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{rateEmail}}\"}"
+        },
+        "url": "{{baseUrl}}/api/auth/forgot-password"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const allowed = Number(pm.collectionVariables.get('allowedAttempts') || 3);",
+              "const total = Number(pm.collectionVariables.get('totalAttempts') || (allowed + 1));",
+              "const previousAttempt = Number(pm.collectionVariables.get('attempt') || 0);",
+              "const attempt = previousAttempt + 1;",
+              "pm.collectionVariables.set('attempt', String(attempt));",
+              "const expectedStatus = attempt <= allowed ? 200 : 429;",
+              "pm.test(`attempt ${attempt} status`, () => pm.response.to.have.status(expectedStatus));",
+              "pm.test('X-RateLimit-Limit header', () => pm.expect(pm.response.headers.get('X-RateLimit-Limit')).to.eql(String(allowed)));",
+              "pm.test('X-RateLimit-Remaining header', () => {",
+              "  const expectedRemaining = String(Math.max(0, allowed - attempt));",
+              "  pm.expect(pm.response.headers.get('X-RateLimit-Remaining')).to.eql(expectedRemaining);",
+              "});",
+              "const body = pm.response.json();",
+              "if (attempt <= allowed) {",
+              "  pm.test('neutral success envelope', () => pm.expect(body.success).to.eql(true));",
+              "} else {",
+              "  pm.test('rate_limited error code', () => pm.expect(body.error.code).to.eql('rate_limited'));",
+              "  pm.test('Retry-After header present', () => pm.expect(pm.response.headers.has('Retry-After')).to.eql(true));",
+              "}",
+              "if (attempt < total) {",
+              "  pm.execution.setNextRequest(pm.info.requestName);",
+              "} else {",
+              "  pm.collectionVariables.unset('attempt');",
+              "  pm.execution.setNextRequest(null);",
+              "}"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
