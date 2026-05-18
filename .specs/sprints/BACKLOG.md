@@ -21,54 +21,56 @@ Lista priorizada de tudo que precisa ser feito. Fonte da verdade de pendências 
 
 ---
 
-## Sprint 7 — Polish and release (origem: GitHub Issues #64-70)
+## Sprint 8 — v1.1 hardening pós-release (origem: GitHub Issues #90-#95)
 
-| #  | Issue | Título                                       | Prioridade | Sprint alvo | Status | Origem |
-|----|-------|----------------------------------------------|------------|-------------|--------|--------|
-| 1  | #64   | [EPIC] E2E and hardening                     | P1         | sprint-07   | todo   | gh issue #64 |
-| 2  | #67   | [S7-03] security review pass                 | P0         | sprint-07   | todo   | gh issue #67 |
-| 3  | #65   | [S7-01] Playwright web admin happy path      | P1         | sprint-07   | todo   | gh issue #65 |
-| 4  | #66   | [S7-02] Postman/Newman API regression        | P1         | sprint-07   | todo   | gh issue #66 |
-| 5  | #68   | [S7-04] performance pass                     | P1         | sprint-07   | todo   | gh issue #68 |
-| 6  | #69   | [S7-05] README + ER diagram                  | P2         | sprint-07   | todo   | gh issue #69 |
-| 7  | #70   | [S7-06] tag v1.0.0 + release notes           | P2         | sprint-07   | todo   | gh issue #70 |
+Endurecer o sistema pós-v1.0.0 com provedor real de email/SMS, infra container, unit tests formais, métricas de adoção e rate limit escalável. **Sem features novas.**
 
----
-
-## Pendências detectadas no código (TODO/FIXME grep)
-
-| #  | Item                                                                      | Prioridade | Sprint alvo | Status | Origem |
-|----|---------------------------------------------------------------------------|------------|-------------|--------|--------|
-| 8  | Integrar provedor real de email/SMS para reset de senha (escolher gateway, configurar credenciais via `.env`, remover TODO) | P1 | sprint-07 | todo | `src/Controllers/Api/AuthRecoveryController.php:55` |
-
-Detalhe do TODO em `AuthRecoveryController.php:55`:
-
-```
-// TODO: dispatch via mail/SMS sender — never log the plaintext code
-```
-
-Hoje o código de recuperação é gerado, persistido com hash SHA-256 em `password_resets` e devolvido apenas em ambiente local/dev. Sem provedor real, o fluxo de reset não fecha em produção end-to-end.
+| #  | Issue | Título                                                                  | Prioridade | Sprint alvo | Status | Origem |
+|----|-------|-------------------------------------------------------------------------|------------|-------------|--------|--------|
+| 1  | #95   | [EPIC] Sprint 8 — v1.1 hardening pós-release                            | P1         | sprint-08   | todo   | gh issue #95 |
+| 2  | #90   | [S8-01] Integrar provedor real de email/SMS para reset de senha         | P1         | sprint-08   | todo   | gh issue #90 |
+| 3  | #91   | [S8-02] Adicionar Dockerfile + docker-compose oficiais                  | P2         | sprint-08   | todo   | gh issue #91 |
+| 4  | #92   | [S8-03] Adotar PHPUnit/Pest para unit tests do core PHP                 | P2         | sprint-08   | todo   | gh issue #92 |
+| 5  | #93   | [S8-04] Métricas de adoção: api_tokens.last_used_at e tempo de visita   | P2         | sprint-08   | todo   | gh issue #93 |
+| 6  | #94   | [S8-05] Cache distribuído (Redis) para rate limit                       | P2         | sprint-08   | todo   | gh issue #94 |
 
 ---
 
-## Itens estruturais (não-issue) já mapeados
+## Próximas decisões pendentes
 
-Itens identificados durante o bootstrap das specs que ainda não viraram issue. Promover para issue quando entrarem em sprint.
-
-| #  | Item                                                                                          | Prioridade | Sprint alvo | Status |
-|----|-----------------------------------------------------------------------------------------------|------------|-------------|--------|
-| 9  | Adicionar Dockerfile/docker-compose oficiais (hoje não existem na raiz; runtime alvo HostGator) | P2         | backlog     | todo   |
-| 10 | Avaliar PHPUnit/Pest para unit tests (hoje só Newman + Playwright cobrem regressão)           | P2         | backlog     | todo   |
-| 11 | Métricas de adoção (`api_tokens.last_used_at`) e tempo médio de cadastro de visita (VISION.md) | P2         | backlog     | todo   |
-| 12 | Cache distribuído (Redis) para rate limit quando MySQL virar gargalo                          | P2         | backlog     | todo   |
+- **#90** — Provedor email/SMS transacional (depende de ADR de infra externa). Trial gratuito: SendGrid 100/dia, Mailgun 5k/mês trial.
+- **#91** — Estratégia oficial de container: manter HostGator-only ou abrir caminho pra Docker em outro provedor?
+- **#92** — Adotar PHPUnit ou Pest? Recomendação inicial: PHPUnit (mais estável, sem nova DSL).
+- **#94** — HostGator oferece Redis? Se não, ADR define adiar ou trocar de host.
 
 ---
 
-## Histórico recente (últimos done)
+## Histórico — done
 
-| #   | Título                                       | Sprint     | Concluído em |
-| --- | -------------------------------------------- | ---------- | ------------ |
-| 0   | Bootstrap de repositório + AGENTS.md         | sprint-00  | 2026-05-07   |
+### Sprint 7 — Polish & release (v1.0.0, 2026-05-04)
+
+| Issue | Título                                       | Concluído em |
+| ----- | -------------------------------------------- | ------------ |
+| #64   | [EPIC] E2E and hardening                     | 2026-05-04   |
+| #65   | [S7-01] Playwright web admin happy path      | 2026-05-04   |
+| #66   | [S7-02] Postman/Newman API regression        | 2026-05-04   |
+| #67   | [S7-03] security review pass                 | 2026-05-04   |
+| #68   | [S7-04] performance pass                     | 2026-05-04   |
+| #69   | [S7-05] README + ER diagram                  | 2026-05-04   |
+| #70   | [S7-06] tag v1.0.0 + release notes           | 2026-05-04   |
+
+### Sprints anteriores
+
+| Sprint     | Issues fechadas | Versão  | Concluído em |
+| ---------- | --------------- | ------- | ------------ |
+| sprint-00  | bootstrap       | -       | 2026-05-07   |
+| sprint-01  | #1-#11          | v0.5.0  | 2026-05-04   |
+| sprint-02  | #12-#22         | v0.6.0  | 2026-05-04   |
+| sprint-03  | #23-#31         | v0.7.0  | 2026-05-04   |
+| sprint-04  | #32-#42         | v0.8.0  | 2026-05-04   |
+| sprint-05  | #43-#53         | v0.9.0  | 2026-05-04   |
+| sprint-06  | #54-#63         | v0.10.0 | 2026-05-04   |
+| sprint-07  | #64-#70         | v1.0.0  | 2026-05-04   |
 
 ---
 
@@ -78,17 +80,9 @@ Itens identificados durante o bootstrap das specs que ainda não viraram issue. 
 
 ---
 
-## Próximas decisões pendentes
-
-- Provedor de email/SMS transacional para item #8 (depende de ADR de infra externa).
-- Estratégia oficial de container (item #9): manter HostGator-only ou abrir caminho pra Docker em outro provedor?
-- Criar PHPUnit/Pest no v1.1 (item #10) ou postergar até existir lógica de domínio com complexidade que justifique?
-
----
-
 ## Como atualizar este arquivo
 
 1. Nova issue no GitHub com label `sprint:N` entra na seção da sprint correspondente.
-2. TODO/FIXME novo no código (com link para issue) entra em "Pendências detectadas no código".
-3. Após `gh issue close`, mover linha para "Histórico recente" (com data) no mesmo PR.
+2. TODO/FIXME novo no código (com link para issue) entra como nova linha na sprint apropriada.
+3. Após `gh issue close`, mover linha para "Histórico — done" (com data) no mesmo PR.
 4. Rodar `gh issue list --state open --label sprint:N` para conferir antes de cada review de sprint.
