@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2 - 2026-05-18
+- Sprint 8 hardening — Docker onboarding: added an official `Dockerfile` multi-stage plus `docker-compose.yml` with `app` (`php:8.2-apache`) and `db` (`mysql:8.0`) services, persistent DB volume, Apache docroot at `public/`, and automatic `schema.sql` + `database/migrations/*.sql` + `seed.sql` import on first boot so the containerized DB matches the current app schema.
+- CI runtime validation: `.github/workflows/ci.yml` now includes a `docker-smoke` job that builds the stack, waits for `GET /api/health`, and verifies seeded admin login inside the Dockerized runtime.
+- docs and architecture: documented "Setup via Docker" in the repo instructions and accepted ADR `ADR-002-docker-dev-runtime.md` to keep Docker as the official local/onboarding runtime while HostGator remains the production path for v1.x.
+
 ## 1.1.1 - 2026-05-18
 - Sprint 8 hardening — adoption metrics: new admin endpoint `GET /api/admin/metrics/adoption` returns `active_users_30d`, `mau_by_role`, and visitor registration p50/p95 based on `audit_logs` (`visitor.created` -> `visitor.qr_issued`) for the current condominium.
 - dashboard visibility: síndico/admin dashboard now surfaces the same adoption metrics in cards, and the API dashboard payload adds `metrics.adoption` for the síndico view.

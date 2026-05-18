@@ -44,6 +44,10 @@ mysql -u root -p sistema_sindico < database/seed.sql
 # dev server
 php -S 127.0.0.1:8000 -t public
 
+# docker runtime
+docker compose up -d --build
+docker compose down -v
+
 # syntax check
 find src -name "*.php" -exec php -l {} \;
 
@@ -63,10 +67,12 @@ scripts/smoke-public-site.sh
 # git / PR
 gh pr create --fill
 gh run watch
-gh issue list --state open --label sprint:7
+gh issue list --state open --label sprint:8
 ```
 
-Default seed credentials (dev only): `admin@sistemasindico.local` / `senha123` (same for `sindico`, `morador`, `porteiro`). Rotate before any non-localhost deploy.
+Docker app URL: `http://127.0.0.1:8000` and MySQL host port: `127.0.0.1:3307`. The first Docker DB boot imports `database/schema.sql`, then `database/migrations/*.sql`, then `database/seed.sql`.
+
+Default seed credentials (dev only): `admin@sindico.local` / `senha123` (same password for the other seeded users). Rotate before any non-localhost deploy.
 
 <!-- codex-long-running-agent-overlay:start -->
 ## Universal Long-Running Agent Overlay

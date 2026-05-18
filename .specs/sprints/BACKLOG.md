@@ -29,9 +29,8 @@ Endurecer o sistema pós-v1.0.0 com provedor real de email/SMS, infra container,
 |----|-------|-------------------------------------------------------------------------|------------|-------------|--------|--------|
 | 1  | #95   | [EPIC] Sprint 8 — v1.1 hardening pós-release                            | P1         | sprint-08   | todo   | gh issue #95 |
 | 2  | #90   | [S8-01] Integrar provedor real de email/SMS para reset de senha         | P1         | sprint-08   | todo   | gh issue #90 |
-| 3  | #91   | [S8-02] Adicionar Dockerfile + docker-compose oficiais                  | P2         | sprint-08   | todo   | gh issue #91 |
-| 4  | #92   | [S8-03] Adotar PHPUnit/Pest para unit tests do core PHP                 | P2         | sprint-08   | todo   | gh issue #92 |
-| 5  | #94   | [S8-05] Cache distribuído (Redis) para rate limit                       | P2         | sprint-08   | todo   | gh issue #94 |
+| 3  | #92   | [S8-03] Adotar PHPUnit/Pest para unit tests do core PHP                 | P2         | sprint-08   | todo   | gh issue #92 |
+| 4  | #94   | [S8-05] Cache distribuído (Redis) para rate limit                       | P2         | sprint-08   | todo   | gh issue #94 |
 
 ---
 
@@ -50,6 +49,7 @@ Endurecer o sistema pós-v1.0.0 com provedor real de email/SMS, infra container,
 
 | Issue | Título                                                                | Concluído em |
 | ----- | --------------------------------------------------------------------- | ------------ |
+| #91   | [S8-02] Adicionar Dockerfile + docker-compose oficiais                | 2026-05-18   |
 | #93   | [S8-04] Métricas de adoção: api_tokens.last_used_at e tempo de visita | 2026-05-18   |
 
 ### Sprint 7 — Polish & release (v1.0.0, 2026-05-04)

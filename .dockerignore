@@ -1,0 +1,17 @@
+.git
+.git/*
+.deploy-build
+.deploy-build/*
+node_modules
+node_modules/*
+tests/e2e/test-results
+tests/e2e/test-results/*
+playwright-report
+playwright-report/*
+.env
+.plans
+.plans/*
+.ralph
+.ralph/*
+.codex
+.codex/*

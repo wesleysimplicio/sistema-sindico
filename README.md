@@ -56,16 +56,36 @@ Then open:
 - Web admin: <http://127.0.0.1:8000/login>
 - API health: <http://127.0.0.1:8000/api/health>
 
+## Setup via Docker
+
+```bash
+docker compose up -d --build
+curl -s http://127.0.0.1:8000/api/health
+```
+
+Notes:
+
+- App: <http://127.0.0.1:8000>
+- MySQL from the host: `127.0.0.1:3307`
+- DB name/user/password: `sistema_sindico` / `sistema_sindico` / `sistema_sindico`
+- The first boot imports `database/schema.sql`, then every SQL file in `database/migrations/`, and finally `database/seed.sql` when the DB volume is empty.
+- To reset the Docker database and re-apply the seed:
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
 ## Seeded credentials
 
 All seeded users use the password `senha123`.
 
 | Role     | Email                          |
 |----------|--------------------------------|
-| admin    | admin@sistemasindico.local     |
-| sindico  | sindico@sistemasindico.local   |
-| morador  | morador@sistemasindico.local   |
-| porteiro | porteiro@sistemasindico.local  |
+| admin    | admin@sindico.local            |
+| sindico  | sindico@sindico.local          |
+| morador  | manoel@example.com             |
+| porteiro | portaria@sindico.local         |
 
 ## REST API
 

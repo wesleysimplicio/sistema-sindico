@@ -39,6 +39,10 @@ mysql -u root -p sistema_sindico < database/seed.sql   # popula usuarios + dados
 # desenvolvimento
 php -S 127.0.0.1:8000 -t public                  # front controller em :8000
 
+# desenvolvimento (Docker)
+docker compose up -d --build                     # app em :8000, MySQL exposto em :3307
+docker compose down -v                           # reseta volume e reaplica schema + seed
+
 # qualidade (PHP)
 php -l src/Controllers/Api/AuthController.php    # syntax check arquivo a arquivo
 find src -name "*.php" -exec php -l {} \;        # syntax check em massa
@@ -61,10 +65,22 @@ scripts/smoke-public-site.sh                     # smoke test de URLs publicas p
 git checkout -b feat/<task-id>-<slug>
 gh pr create --fill                              # usa template de PR
 gh run watch                                     # acompanha CI do branch atual
-gh issue list --state open --label sprint:7      # ver itens da sprint corrente
+gh issue list --state open --label sprint:8      # ver itens da sprint corrente
 ```
 
-Credenciais seed default (so dev): `admin@sistemasindico.local` / `senha123` (idem para `sindico`, `morador`, `porteiro`). Trocar antes de qualquer deploy fora de localhost.
+## Setup via Docker
+
+```bash
+docker compose up -d --build
+curl -s http://127.0.0.1:8000/api/health
+```
+
+- App: `http://127.0.0.1:8000`
+- MySQL no host: `127.0.0.1:3307`
+- Reset do banco Docker: `docker compose down -v`
+- Primeiro boot aplica `database/schema.sql`, depois `database/migrations/*.sql` e por fim `database/seed.sql` quando o volume estiver vazio
+
+Credenciais seed default (so dev): `admin@sindico.local` / `senha123` (idem para os demais usuarios semeados). Trocar antes de qualquer deploy fora de localhost.
 
 ---
 

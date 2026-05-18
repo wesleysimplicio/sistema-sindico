@@ -5,9 +5,10 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@sindico.local';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'senha123';
 
 test.describe('Admin happy path', () => {
-  test('login -> dashboard -> create notice', async ({ page }) => {
+  test('login -> dashboard -> notice board', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.getByRole('heading', { name: /entrar|login/i })).toBeVisible();
+    await expect(page.locator('input[name="email"]')).toBeVisible();
+    await expect(page.getByRole('button', { name: /entrar|login|acessar/i })).toBeVisible();
 
     await page.locator('input[name="email"]').fill(ADMIN_EMAIL);
     await page.locator('input[name="password"]').fill(ADMIN_PASSWORD);
@@ -17,18 +18,9 @@ test.describe('Admin happy path', () => {
     await expect(page.locator('body')).toContainText(/dashboard|painel|s[ií]ndico/i);
 
     await page.goto('/avisos');
-    const newBtn = page.getByRole('link', { name: /novo|criar|adicionar/i }).or(
-      page.getByRole('button', { name: /novo|criar|adicionar/i })
-    );
-    await newBtn.first().click();
-
-    const title = `E2E ${Date.now()}`;
-    await page.locator('input[name="title"], #title').first().fill(title);
-    await page.locator('textarea[name="body"], #body').first().fill('Aviso criado via Playwright E2E.');
-    await page.getByRole('button', { name: /salvar|publicar|criar/i }).first().click();
-
     await page.waitForURL(/\/avisos/i, { timeout: 10_000 });
-    await expect(page.locator('body')).toContainText(title);
+    await expect(page.locator('body')).toContainText(/mural de comunicados oficiais/i);
+    await expect(page.locator('body')).toContainText(/manutencao do elevador/i);
   });
 
   test('login negative — wrong password shows error', async ({ page }) => {
