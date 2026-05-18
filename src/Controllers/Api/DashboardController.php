@@ -7,6 +7,7 @@ namespace App\Controllers\Api;
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Response;
+use App\Repositories\AdoptionMetricsRepository;
 use App\Repositories\NoticeRepository;
 use PDO;
 
@@ -96,6 +97,7 @@ final class DashboardController
     private function sindicoPayload(int $condominiumId): array
     {
         $pdo = $this->pdo();
+        $adoptionMetrics = (new AdoptionMetricsRepository())->summaryForCondominium($condominiumId);
 
         $stmt = $pdo->prepare(
             "SELECT COUNT(*) AS c FROM maintenance_requests
@@ -132,6 +134,9 @@ final class DashboardController
             'lists' => [
                 'notices_recent'  => $noticesRecent,
                 'visitors_recent' => $visitorsRecent,
+            ],
+            'metrics' => [
+                'adoption' => $adoptionMetrics,
             ],
         ];
     }

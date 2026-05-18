@@ -34,7 +34,7 @@ Endurecer o sistema pós-v1.0.0 com provedor real de email/SMS, infra container,
 | #90   | todo   | @wesleysimplicio  |
 | #91   | todo   | @wesleysimplicio  |
 | #92   | todo   | @wesleysimplicio  |
-| #93   | todo   | @wesleysimplicio  |
+| #93   | done   | @wesleysimplicio  |
 | #94   | todo   | @wesleysimplicio  |
 
 ## Riscos

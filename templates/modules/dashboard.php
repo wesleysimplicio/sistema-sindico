@@ -4,6 +4,18 @@
 /** @var array{residents:int,units:int,open_maintenance:int,pending_payments:int,pending_deliveries:int} $stats */
 /** @var array<int,array> $notices */
 /** @var array<int,array> $payments */
+/** @var array{active_users_30d:int,mau_by_role:array<string,int>,avg_visit_registration_seconds_p50:?int,avg_visit_registration_seconds_p95:?int}|null $adoptionMetrics */
+
+$formatSeconds = static function (?int $seconds): string {
+    return $seconds === null ? '--' : $seconds . 's';
+};
+
+$roleLabels = [
+    'admin' => 'Admins',
+    'sindico' => 'Sindicos',
+    'morador' => 'Moradores',
+    'porteiro' => 'Porteiros',
+];
 ?>
 <div class="card">
   <h2>Bem-vindo, <?= htmlspecialchars($user['name'] ?? 'sindico') ?></h2>
@@ -39,6 +51,40 @@
     <div class="label">Encomendas aguardando</div>
   </div>
 </div>
+
+<?php if ($adoptionMetrics !== null): ?>
+  <div class="card">
+    <h2>Adocao do app</h2>
+    <p class="muted">Base de 30 dias com usuarios ativos por papel e tempo entre cadastro da visita e emissao do QR.</p>
+
+    <div class="grid stats">
+      <div class="stat info">
+        <div class="value"><?= (int) $adoptionMetrics['active_users_30d'] ?></div>
+        <div class="label">Usuarios ativos (30d)</div>
+      </div>
+      <div class="stat">
+        <div class="value"><?= htmlspecialchars($formatSeconds($adoptionMetrics['avg_visit_registration_seconds_p50'])) ?></div>
+        <div class="label">P50 emissao de QR</div>
+      </div>
+      <div class="stat warn">
+        <div class="value"><?= htmlspecialchars($formatSeconds($adoptionMetrics['avg_visit_registration_seconds_p95'])) ?></div>
+        <div class="label">P95 emissao de QR</div>
+      </div>
+    </div>
+
+    <table class="data">
+      <thead><tr><th>Papel</th><th>MAU</th></tr></thead>
+      <tbody>
+        <?php foreach ($adoptionMetrics['mau_by_role'] as $role => $count): ?>
+          <tr>
+            <td><?= htmlspecialchars($roleLabels[$role] ?? ucfirst($role)) ?></td>
+            <td><?= (int) $count ?></td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+<?php endif; ?>
 
 <div class="card">
   <h2>Avisos recentes</h2>

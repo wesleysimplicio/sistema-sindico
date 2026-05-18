@@ -6,6 +6,7 @@ namespace App\Controllers\Web;
 
 use App\Core\Auth;
 use App\Core\View;
+use App\Repositories\AdoptionMetricsRepository;
 use App\Repositories\CondominiumRepository;
 use App\Repositories\DeliveryRepository;
 use App\Repositories\MaintenanceRepository;
@@ -31,6 +32,7 @@ final class DashboardController
         $notices  = [];
         $condo    = null;
         $payments = [];
+        $adoptionMetrics = null;
 
         if ($cid !== null) {
             $condo = (new CondominiumRepository())->find($cid);
@@ -43,6 +45,11 @@ final class DashboardController
 
             $notices  = array_slice((new NoticeRepository())->listByCondominium($cid, 5), 0, 5);
             $payments = (new PaymentRepository())->summaryByCondominium($cid);
+
+            $role = (string) ($user['role'] ?? '');
+            if (in_array($role, ['admin', 'sindico'], true)) {
+                $adoptionMetrics = (new AdoptionMetricsRepository())->summaryForCondominium($cid);
+            }
         }
 
         View::render('modules/dashboard', [
@@ -53,6 +60,7 @@ final class DashboardController
             'stats'    => $stats,
             'notices'  => $notices,
             'payments' => $payments,
+            'adoptionMetrics' => $adoptionMetrics,
         ]);
     }
 }

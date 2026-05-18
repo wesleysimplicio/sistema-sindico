@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1 - 2026-05-18
+- Sprint 8 hardening — adoption metrics: new admin endpoint `GET /api/admin/metrics/adoption` returns `active_users_30d`, `mau_by_role`, and visitor registration p50/p95 based on `audit_logs` (`visitor.created` -> `visitor.qr_issued`) for the current condominium.
+- dashboard visibility: síndico/admin dashboard now surfaces the same adoption metrics in cards, and the API dashboard payload adds `metrics.adoption` for the síndico view.
+- session activity throttling: `ApiTokenRepository::isActive()` now updates `api_tokens.last_used_at` at most once per minute per token, reducing write amplification while preserving 30-day adoption tracking.
+- regression coverage: Postman/Newman collection gained a dedicated `S8 — Adoption metrics` flow that logs in, creates a visitor fixture, issues the QR, and validates the new metrics envelope end-to-end.
+
 ## 1.1.0 - 2026-05-07
 - Adopted `agentic-starter` scaffold: `.specs/{product,architecture,workflow,sprints}/`, `.skills/`, `.claude/{settings.json,hooks/}`, `.codex/config.toml`, `.github/{workflows/dod.yml,PULL_REQUEST_TEMPLATE.md,ISSUE_TEMPLATE/,copilot-instructions.md}`, `playwright.config.ts`, `presentation/`. Existing `AGENTS.md`/`CLAUDE.md` preserved.
 - `.specs/product/{VISION,DOMAIN,PERSONAS}.md` mapped to condominium, user, unit, visitor+invitation, payment.

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 use App\Controllers\Api\AccessLogController;
 use App\Controllers\Api\AccessWebhookController;
+use App\Controllers\Api\AdoptionMetricsController;
 use App\Controllers\Api\AuthController;
 use App\Controllers\Api\AuthRecoveryController;
 use App\Controllers\Api\BookingController;
@@ -77,6 +78,7 @@ $router->group([ApiAuth::class], function ($router): void {
     $router->post('/api/memberships/select', [MembershipController::class, 'select']);
 
     $router->get('/api/dashboard',           [DashboardController::class, 'index']);
+    $router->get('/api/admin/metrics/adoption', [AdoptionMetricsController::class, 'index']);
 
     $router->get('/api/condominiums',         [CondominiumController::class, 'index']);
     $router->get('/api/condominiums/{id}',    [CondominiumController::class, 'show']);

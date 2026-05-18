@@ -52,7 +52,12 @@ final class ApiTokenRepository extends BaseRepository
         if ($row === false) {
             return false;
         }
-        $upd = $this->pdo->prepare('UPDATE api_tokens SET last_used_at = NOW() WHERE id = :id');
+        $upd = $this->pdo->prepare(
+            'UPDATE api_tokens
+             SET last_used_at = NOW()
+             WHERE id = :id
+               AND (last_used_at IS NULL OR last_used_at < DATE_SUB(NOW(), INTERVAL 1 MINUTE))'
+        );
         $upd->execute(['id' => (int) $row['id']]);
         return true;
     }

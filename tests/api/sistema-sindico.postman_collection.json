@@ -10,7 +10,8 @@
     { "key": "email",   "value": "admin@sindico.local" },
     { "key": "password","value": "senha123" },
     { "key": "token",   "value": "" },
-    { "key": "noticeId","value": "" }
+    { "key": "noticeId","value": "" },
+    { "key": "visitorId","value": "" }
   ],
   "item": [
     {
@@ -263,6 +264,85 @@
       "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
         "pm.test('401', () => pm.response.to.have.status(401));"
       ] } }]
+    },
+    {
+      "name": "S8 — Adoption metrics",
+      "item": [
+        {
+          "name": "01 — Login (admin envelope)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"{{email}}\",\"password\":\"{{password}}\"}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('success envelope', () => pm.expect(body.success).to.eql(true));",
+            "pm.test('token present', () => pm.expect(body.data.token).to.be.a('string').and.have.length.greaterThan(20));",
+            "pm.collectionVariables.set('token', body.data.token);"
+          ] } }]
+        },
+        {
+          "name": "02 — Create visitor fixture",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"name\":\"{{visitorName}}\",\"expected_at\":\"{{visitorExpectedAt}}\",\"notes\":\"newman adoption metrics fixture\"}" },
+            "url": "{{baseUrl}}/api/visitors"
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+              "const now = new Date(Date.now() + 60 * 60 * 1000);",
+              "const pad = n => String(n).padStart(2, '0');",
+              "const expectedAt = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;",
+              "pm.collectionVariables.set('visitorExpectedAt', expectedAt);",
+              "pm.collectionVariables.set('visitorName', `Newman visitor ${Date.now()}`);"
+            ] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('visitor id present', () => pm.expect(body.data.id).to.be.a('number'));",
+              "pm.collectionVariables.set('visitorId', String(body.data.id));"
+            ] } }
+          ]
+        },
+        {
+          "name": "03 — Issue visitor QR fixture",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/visitors/{{visitorId}}/qr"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('success envelope', () => pm.expect(body.success).to.eql(true));",
+            "pm.test('qr token present', () => pm.expect(body.data.qr_token).to.be.a('string').and.have.length.greaterThan(10));"
+          ] } }]
+        },
+        {
+          "name": "04 — Adoption metrics endpoint",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/admin/metrics/adoption"
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('success envelope', () => pm.expect(body.success).to.eql(true));",
+            "pm.test('active_users_30d >= 1', () => pm.expect(body.data.active_users_30d).to.be.at.least(1));",
+            "pm.test('mau_by_role object', () => pm.expect(body.data.mau_by_role).to.be.an('object'));",
+            "pm.test('p50 populated', () => pm.expect(body.data.avg_visit_registration_seconds_p50).to.be.a('number'));",
+            "pm.test('p95 populated', () => pm.expect(body.data.avg_visit_registration_seconds_p95).to.be.a('number'));"
+          ] } }]
+        }
+      ]
     }
   ]
 }
