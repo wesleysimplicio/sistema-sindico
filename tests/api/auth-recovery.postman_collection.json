@@ -1,0 +1,73 @@
+{
+  "info": {
+    "name": "Sistema Sindico — auth recovery",
+    "_postman_id": "ssind-auth-recovery-001",
+    "description": "Newman smoke for forgot-password -> verify-code -> reset-password using the local mock mailer driver.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "recoveryEmail", "value": "manoel@example.com" },
+    { "key": "recoveryCode", "value": "" },
+    { "key": "resetToken", "value": "" },
+    { "key": "recoveryPassword", "value": "Recuperada123" }
+  ],
+  "item": [
+    {
+      "name": "01 — Forgot password",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"email\":\"{{recoveryEmail}}\"}" },
+        "url": "{{baseUrl}}/api/auth/forgot-password"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "const j = pm.response.json();",
+        "pm.test('debug code present in local/log driver', () => pm.expect(j.data.debug.code).to.match(/^\\d{6}$/));",
+        "pm.collectionVariables.set('recoveryCode', j.data.debug.code);"
+      ] } }]
+    },
+    {
+      "name": "02 — Verify code",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"document_or_email\":\"{{recoveryEmail}}\",\"code\":\"{{recoveryCode}}\"}" },
+        "url": "{{baseUrl}}/api/auth/verify-code"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "const j = pm.response.json();",
+        "pm.test('reset token present', () => pm.expect(j.data.reset_token).to.be.a('string').and.have.length.greaterThan(20));",
+        "pm.collectionVariables.set('resetToken', j.data.reset_token);"
+      ] } }]
+    },
+    {
+      "name": "03 — Reset password",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"reset_token\":\"{{resetToken}}\",\"new_password\":\"{{recoveryPassword}}\"}" },
+        "url": "{{baseUrl}}/api/auth/reset-password"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));"
+      ] } }]
+    },
+    {
+      "name": "04 — Login with new password",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"email\":\"{{recoveryEmail}}\",\"password\":\"{{recoveryPassword}}\"}" },
+        "url": "{{baseUrl}}/api/auth/login"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200', () => pm.response.to.have.status(200));",
+        "const j = pm.response.json();",
+        "pm.test('token present', () => pm.expect(j.data.token).to.be.a('string').and.have.length.greaterThan(20));"
+      ] } }]
+    }
+  ]
+}

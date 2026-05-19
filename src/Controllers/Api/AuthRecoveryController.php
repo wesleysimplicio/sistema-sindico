@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers\Api;
 
+use App\Core\Mailer;
 use App\Core\PasswordPolicy;
 use App\Core\Request;
 use App\Core\Response;
@@ -52,9 +53,24 @@ final class AuthRecoveryController
         $resets->invalidatePendingForUser((int) $user['id']);
         $resets->createForUser((int) $user['id'], $codeHash, self::CODE_TTL_SECONDS);
 
-        // TODO: dispatch via mail/SMS sender — never log the plaintext code
+        $payload = ['message' => self::NEUTRAL_MESSAGE];
+        $email = trim((string) ($user['email'] ?? ''));
+        if ($email !== '') {
+            $receipt = Mailer::fromEnvironment()->sendPasswordResetCode(
+                $email,
+                (string) ($user['name'] ?? 'usuario'),
+                $code,
+            );
+            if ($receipt->debugCode !== null) {
+                $payload['debug'] = [
+                    'code' => $receipt->debugCode,
+                    'driver' => $receipt->driver,
+                    'channel' => $receipt->channel,
+                ];
+            }
+        }
 
-        Response::json(['message' => self::NEUTRAL_MESSAGE]);
+        Response::json($payload);
     }
 
     public function verifyCode(): void

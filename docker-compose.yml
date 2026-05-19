@@ -17,6 +17,11 @@ services:
       DB_USERNAME: sistema_sindico
       DB_PASSWORD: sistema_sindico
       JWT_SECRET: docker-local-jwt-secret-please-change-1234567890
+      MAIL_DRIVER: ${MAIL_DRIVER:-log}
+      MAIL_FROM: no-reply@sindico.local
+      MAIL_FROM_NAME: Sistema Sindico
+      MAIL_API_KEY: ${MAIL_API_KEY:-}
+      MAIL_API_BASE_URL: ${MAIL_API_BASE_URL:-https://api.resend.com}
       RATE_LIMIT_DRIVER: ${RATE_LIMIT_DRIVER:-mysql}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
     ports:

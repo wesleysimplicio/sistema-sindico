@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . .
 
 RUN if [ -f composer.json ]; then \
-      composer install --no-interaction --prefer-dist --no-progress; \
+      composer install --no-dev --no-interaction --prefer-dist --no-progress; \
     else \
       mkdir -p vendor && echo "No composer.json detected; skipping composer install."; \
     fi

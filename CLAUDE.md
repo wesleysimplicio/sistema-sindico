@@ -11,6 +11,7 @@ Stack canônica: **PHP 8.2 + MySQL 8** sem framework, custom router em `src/Core
 ```bash
 # setup local (1a vez)
 cp .env.example .env                             # ajustar DB_*, JWT_SECRET (>= 32 chars)
+composer install                                # instala dev deps (PHPUnit)
 mysql -u root -p < database/schema.sql           # cria schema
 mysql -u root -p sistema_sindico < database/seed.sql   # popula usuarios + dados de exemplo
 
@@ -24,9 +25,12 @@ docker compose down -v                           # reseta volume e reaplica sche
 # qualidade (PHP)
 php -l src/Controllers/Api/AuthController.php    # syntax check arquivo a arquivo
 find src -name "*.php" -exec php -l {} \;        # syntax check em massa
+vendor/bin/phpunit --configuration phpunit.xml.dist --testdox
 
 # regression API (Newman)
 npx newman run tests/api/sistema-sindico.postman_collection.json \
+  --env-var baseUrl=http://127.0.0.1:8000
+npx newman run tests/api/auth-recovery.postman_collection.json \
   --env-var baseUrl=http://127.0.0.1:8000
 
 # E2E web (Playwright)
@@ -55,6 +59,7 @@ curl -s http://127.0.0.1:8000/api/health
 
 - App: `http://127.0.0.1:8000`
 - MySQL no host: `127.0.0.1:3307`
+- Mailer local default: `MAIL_DRIVER=log` com `debug.code` apenas em `APP_ENV=local`
 - Reset do banco Docker: `docker compose down -v`
 - Primeiro boot aplica `database/schema.sql`, depois `database/migrations/*.sql` e por fim `database/seed.sql` quando o volume estiver vazio
 

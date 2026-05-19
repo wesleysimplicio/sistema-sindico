@@ -38,6 +38,7 @@ When reviewing pull requests in this repository, focus on:
 ```bash
 # setup
 cp .env.example .env
+composer install
 mysql -u root -p < database/schema.sql
 mysql -u root -p sistema_sindico < database/seed.sql
 
@@ -50,9 +51,12 @@ docker compose down -v
 
 # syntax check
 find src -name "*.php" -exec php -l {} \;
+vendor/bin/phpunit --configuration phpunit.xml.dist --testdox
 
 # API regression (Newman + Postman collection)
 npx newman run tests/api/sistema-sindico.postman_collection.json \
+  --env-var baseUrl=http://127.0.0.1:8000
+npx newman run tests/api/auth-recovery.postman_collection.json \
   --env-var baseUrl=http://127.0.0.1:8000
 
 # E2E web (Playwright)
@@ -71,6 +75,7 @@ gh issue list --state open --label sprint:8
 ```
 
 Docker app URL: `http://127.0.0.1:8000` and MySQL host port: `127.0.0.1:3307`. The first Docker DB boot imports `database/schema.sql`, then `database/migrations/*.sql`, then `database/seed.sql`.
+Local/dev mailer defaults to `MAIL_DRIVER=log`, and password recovery exposes `debug.code` only in local smoke flows.
 
 Default seed credentials (dev only): `admin@sindico.local` / `senha123` (same password for the other seeded users). Rotate before any non-localhost deploy.
 

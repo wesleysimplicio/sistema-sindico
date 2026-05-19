@@ -27,9 +27,9 @@ Endurecer o sistema pós-v1.0.0 com provedor real de email/SMS, infra container,
 
 | #  | Issue | Título                                                                  | Prioridade | Sprint alvo | Status | Origem |
 |----|-------|-------------------------------------------------------------------------|------------|-------------|--------|--------|
-| 1  | #95   | [EPIC] Sprint 8 — v1.1 hardening pós-release                            | P1         | sprint-08   | todo   | gh issue #95 |
-| 2  | #90   | [S8-01] Integrar provedor real de email/SMS para reset de senha         | P1         | sprint-08   | todo   | gh issue #90 |
-| 3  | #92   | [S8-03] Adotar PHPUnit/Pest para unit tests do core PHP                 | P2         | sprint-08   | todo   | gh issue #92 |
+| 1  | #95   | [EPIC] Sprint 8 — v1.1 hardening pós-release                            | P1         | sprint-08   | done   | gh issue #95 |
+| 2  | #90   | [S8-01] Integrar provedor real de email/SMS para reset de senha         | P1         | sprint-08   | done   | gh issue #90 |
+| 3  | #92   | [S8-03] Adotar PHPUnit/Pest para unit tests do core PHP                 | P2         | sprint-08   | done   | gh issue #92 |
 
 ---
 
@@ -48,6 +48,9 @@ Endurecer o sistema pós-v1.0.0 com provedor real de email/SMS, infra container,
 
 | Issue | Título                                                                | Concluído em |
 | ----- | --------------------------------------------------------------------- | ------------ |
+| #95   | [EPIC] Sprint 8 — v1.1 hardening pós-release                          | 2026-05-18   |
+| #90   | [S8-01] Integrar provedor real de email/SMS para reset de senha       | 2026-05-18   |
+| #92   | [S8-03] Adotar PHPUnit/Pest para unit tests do core PHP               | 2026-05-18   |
 | #94   | [S8-05] Cache distribuído (Redis) para rate limit                     | 2026-05-18   |
 | #91   | [S8-02] Adicionar Dockerfile + docker-compose oficiais                | 2026-05-18   |
 | #93   | [S8-04] Métricas de adoção: api_tokens.last_used_at e tempo de visita | 2026-05-18   |

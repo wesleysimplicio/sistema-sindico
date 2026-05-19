@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.4 - 2026-05-18
+- Sprint 8 hardening — auth recovery delivery: added a transactional `Mailer` abstraction with `resend` and local `log` drivers, wired `POST /api/auth/forgot-password` to real email delivery in production, and exposed `data.debug.code` only for local/log smoke without ever logging the plaintext code.
+- unit testing foundation: added `composer.json`, `phpunit.xml.dist`, and a first PHPUnit suite covering `Jwt`, `Totp`, `PasswordPolicy`, `StoragePath`, and `RateLimit`.
+- CI and architecture: accepted ADRs `ADR-004-email-provider-auth-recovery.md` and `ADR-005-phpunit-core-unit-tests.md`, added `unit-phpunit` plus Newman auth-recovery smoke to CI, and marked Sprint 8 backlog items `#90`, `#92`, and epic `#95` as done.
+
 ## 1.1.3 - 2026-05-18
 - Sprint 8 hardening — scalable rate limiting: introduced `RateLimitStore` with `MySQLRateLimitStore` (default) and `RedisRateLimitStore` selected via `RATE_LIMIT_DRIVER`, keeping the same `X-RateLimit-*` and `429` contract for clients while opening an optional Redis path for non-HostGator environments.
 - runtime + validation: `docker-compose.yml` now includes an optional Redis profile, `.env.example` documents `RATE_LIMIT_DRIVER` / `REDIS_URL`, and `scripts/validate-rate-limit-driver.sh` plus `tests/api/rate-limit.postman_collection.json` validate the 429 flow through Newman for both drivers.

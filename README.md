@@ -44,7 +44,7 @@ docs/print/     UI references
 
 ```bash
 cp .env.example .env
-# edit DB_* and JWT_SECRET
+# edit DB_*, JWT_SECRET and MAIL_* when using a real provider
 mysql -u root -p -e "CREATE DATABASE sistema_sindico CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql -u root -p sistema_sindico < database/schema.sql
 mysql -u root -p sistema_sindico < database/seed.sql
@@ -68,6 +68,7 @@ Notes:
 - App: <http://127.0.0.1:8000>
 - MySQL from the host: `127.0.0.1:3307`
 - Optional Redis from the host: `127.0.0.1:6380`
+- Local/dev mailer defaults to `MAIL_DRIVER=log` and exposes `debug.code` only in `APP_ENV=local`.
 - DB name/user/password: `sistema_sindico` / `sistema_sindico` / `sistema_sindico`
 - The first boot imports `database/schema.sql`, then every SQL file in `database/migrations/`, and finally `database/seed.sql` when the DB volume is empty.
 - Default rate limit driver is `mysql`. To validate the optional Redis driver locally:
@@ -81,6 +82,19 @@ RATE_LIMIT_DRIVER=redis docker compose --profile redis up -d --build
 ```bash
 docker compose down -v
 docker compose up -d --build
+```
+
+## Transactional email
+
+- Production path: set `MAIL_DRIVER=resend`, `MAIL_API_KEY`, `MAIL_FROM`, and optional `MAIL_FROM_NAME`.
+- Local/CI path: keep `MAIL_DRIVER=log`; password-recovery smoke reads the one-time code from `data.debug.code`, but the plaintext is never written to logs.
+- SMS is explicitly postponed in this cycle; recovery currently ships with transactional email only.
+
+## Unit tests
+
+```bash
+composer install
+vendor/bin/phpunit --configuration phpunit.xml.dist --testdox
 ```
 
 ## Seeded credentials

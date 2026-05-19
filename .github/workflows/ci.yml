@@ -166,6 +166,67 @@ jobs:
         if: always()
         run: docker compose down -v
 
+  auth-recovery-smoke:
+    name: Auth recovery smoke
+    runs-on: ubuntu-latest
+    needs: docker-smoke
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build and start Docker stack
+        run: docker compose up -d --build
+
+      - name: Wait for health endpoint
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/api/health | grep -q '"status":"ok"'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Docker stack did not expose /api/health in time."
+          docker compose ps
+          docker compose logs --no-color
+          exit 1
+
+      - name: Newman auth recovery
+        run: npx -y newman run tests/api/auth-recovery.postman_collection.json --env-var baseUrl=http://127.0.0.1:8000
+
+      - name: Show Docker logs on failure
+        if: failure()
+        run: |
+          docker compose ps
+          docker compose logs --no-color
+
+      - name: Tear down Docker stack
+        if: always()
+        run: docker compose down -v
+
+  unit-phpunit:
+    name: Unit tests (PHPUnit)
+    runs-on: ubuntu-latest
+    needs: php-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Composer install
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: PHPUnit
+        run: vendor/bin/phpunit --configuration phpunit.xml.dist --testdox --coverage-text
+
   rate-limit-smoke:
     name: Rate limit smoke (${{ matrix.driver }})
     runs-on: ubuntu-latest

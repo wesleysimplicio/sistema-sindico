@@ -17,7 +17,7 @@ Detalhes completos:
 - Linguagem principal: PHP 8.2 (`declare(strict_types=1);` em todo arquivo)
 - Framework web/API: nenhum — Router + Controllers próprios
 - Banco de dados: MySQL 8 (utf8mb4 / InnoDB), acesso via PDO em `src/Core/Database.php`
-- Test runner unit: nenhum no v1 (avaliar PHPUnit/Pest no v1.1 — ver BACKLOG #10)
+- Test runner unit: **PHPUnit** (`phpunit.xml.dist`, `tests/unit/`)
 - Test runner E2E: **Playwright** (`tests/e2e/playwright.config.js` + raiz `playwright.config.ts`)
 - Regression API: **Newman/Postman** (`tests/api/sistema-sindico.postman_collection.json`)
 - Linter/formatter: PHP nativo (`php -l`); sem PHP-CS-Fixer/PHPStan no v1
@@ -33,6 +33,7 @@ Detalhes completos:
 ```bash
 # setup local (1a vez)
 cp .env.example .env                             # ajustar DB_*, JWT_SECRET (>= 32 chars)
+composer install                                # instala dev deps (PHPUnit)
 mysql -u root -p < database/schema.sql           # cria schema
 mysql -u root -p sistema_sindico < database/seed.sql   # popula usuarios + dados de exemplo
 
@@ -46,9 +47,12 @@ docker compose down -v                           # reseta volume e reaplica sche
 # qualidade (PHP)
 php -l src/Controllers/Api/AuthController.php    # syntax check arquivo a arquivo
 find src -name "*.php" -exec php -l {} \;        # syntax check em massa
+vendor/bin/phpunit --configuration phpunit.xml.dist --testdox
 
 # regression API (Newman)
 npx newman run tests/api/sistema-sindico.postman_collection.json \
+  --env-var baseUrl=http://127.0.0.1:8000
+npx newman run tests/api/auth-recovery.postman_collection.json \
   --env-var baseUrl=http://127.0.0.1:8000
 
 # E2E web (Playwright)

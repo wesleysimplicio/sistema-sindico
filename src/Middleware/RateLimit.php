@@ -30,6 +30,11 @@ final class RateLimit
 {
     private static ?RateLimitStore $store = null;
 
+    public static function setStoreForTests(?RateLimitStore $store): void
+    {
+        self::$store = $store;
+    }
+
     public static function enforce(string $bucket, int $max, int $windowSec, string $key): bool
     {
         if ($max <= 0 || $windowSec <= 0) {
