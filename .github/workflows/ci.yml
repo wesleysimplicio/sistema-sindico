@@ -39,12 +39,12 @@ jobs:
             || (cat /tmp/lint.log && exit 1)
           echo "PHP lint OK"
 
-      - name: Composer install (if composer.json present)
-        if: hashFiles('composer.json') != ''
+      - name: Composer install (if composer.json present and PHP supports dev tools)
+        if: matrix.php != '8.1' && hashFiles('composer.json') != ''
         run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Composer audit
-        if: hashFiles('composer.lock') != ''
+        if: matrix.php != '8.1' && hashFiles('composer.lock') != ''
         run: composer audit --no-interaction || true
 
   static-analysis:
