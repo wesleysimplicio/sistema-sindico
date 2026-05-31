@@ -1,0 +1,33 @@
+{
+  "artifacts": [
+    {
+      "id": "f3f6132a965b9ffe",
+      "kind": "unit",
+      "message": "exit 0",
+      "passed": true,
+      "path": "/Users/wesleysimplicio/Projetos/ai/sistema-sindico-wt-feature-99-test-visual-validate-simpliciocode-sprin/.sendsprint/evidence/99/tests.log",
+      "status": "passed",
+      "title": "grep -q \"SimplicioCode Visual E2E\" docs/simplicio-code-visual-flow.md"
+    },
+    {
+      "id": "f4bf334af64c4bac",
+      "kind": "screenshot",
+      "passed": true,
+      "path": "/Users/wesleysimplicio/Projetos/ai/sistema-sindico-wt-feature-99-test-visual-validate-simpliciocode-sprin/.sendsprint/evidence/99/screen.png",
+      "status": "passed",
+      "title": "http://127.0.0.1:8000/login"
+    }
+  ],
+  "item_key": "99",
+  "review_feedback": [],
+  "schema": "sendsprint.evidence/v1",
+  "status": "passed",
+  "steps_completed": [
+    "evidence"
+  ],
+  "summary": {
+    "failed": 0,
+    "passed": 2,
+    "skipped": 0
+  }
+}
