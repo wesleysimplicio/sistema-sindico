@@ -71,4 +71,4 @@ Origin: https://github.com/wesleysimplicio/sistema-sindico/issues/97
 - Backlog: `.specs/sprints/BACKLOG.md`
 - Ticket: https://github.com/wesleysimplicio/sistema-sindico/issues/97
 - Source key: `97`
-- Labels: module:docs, type:chore, simplicio:e2e
+- Labels: module:docs, type:chore, In Progress, In Review, simplicio:e2e
