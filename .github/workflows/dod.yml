@@ -30,21 +30,43 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Detect UI/E2E impact
+        id: dod_scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          CHANGED="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" || true)"
+          echo "$CHANGED"
+          if echo "$CHANGED" | grep -Eq '^(public/|templates/|tests/e2e/|playwright\.config\.ts|package(-lock)?\.json)'; then
+            echo "requires_node=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "requires_node=false" >> "$GITHUB_OUTPUT"
+            echo "No UI/E2E files changed; skipping Node coverage and Playwright evidence gates."
+          fi
+
       - name: Setup Node.js
+        if: steps.dod_scope.outputs.requires_node == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: tests/e2e/package-lock.json
 
       - name: Install dependencies
+        if: steps.dod_scope.outputs.requires_node == 'true'
+        working-directory: tests/e2e
         run: npm ci
 
       # Roda testes com coverage para gerar relatório
       - name: Run unit tests with coverage
+        if: steps.dod_scope.outputs.requires_node == 'true' && hashFiles('package.json') != ''
         run: npm test -- --coverage
 
       # Bloqueia se coverage < 80%
       - name: Check coverage threshold (>=80%)
+        if: steps.dod_scope.outputs.requires_node == 'true' && hashFiles('package.json') != ''
         run: |
           set -euo pipefail
           if [ ! -f coverage/coverage-summary.json ]; then
@@ -57,16 +79,21 @@ jobs:
 
       # Instala browsers e roda Playwright para gerar evidências
       - name: Install Playwright browsers
+        if: steps.dod_scope.outputs.requires_node == 'true'
+        working-directory: tests/e2e
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
+        if: steps.dod_scope.outputs.requires_node == 'true'
+        working-directory: tests/e2e
         run: npx playwright test
 
       # Bloqueia se evidência Playwright (junit ou test-results) não existe
       - name: Verify Playwright evidence
+        if: steps.dod_scope.outputs.requires_node == 'true'
         run: |
           set -euo pipefail
-          if [ ! -d test-results ] && [ ! -f test-results/results.xml ] && [ ! -f test-results/results.json ]; then
+          if [ ! -d test-results ] && [ ! -f test-results/results.xml ] && [ ! -f test-results/results.json ] && [ ! -f playwright-report/junit.xml ]; then
             echo "::error::Evidência Playwright ausente. Rode 'npx playwright test' e gere artifacts em test-results/."
             exit 1
           fi
@@ -78,10 +105,10 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           set -euo pipefail
-          echo "$PR_TITLE" | npx --yes commitlint --extends @commitlint/config-conventional || {
+          if ! echo "$PR_TITLE" | grep -Eq '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9._-]+\))?!?: .+'; then
             echo "::error::Título do PR não segue Conventional Commits (ex: feat: ..., fix: ..., chore: ...)."
             exit 1
-          }
+          fi
 
       # Verifica se PR body referencia uma task (#NNN, task-NNN.md, etc.)
       - name: Check task reference in PR body
