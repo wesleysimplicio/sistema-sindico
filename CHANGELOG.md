@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.5 - 2026-05-31
+- Simplicio E2E validation: created terminal and visual GitHub issue flows for
+  `simplicio-sprint` and `Simplicio-code`, both ending in draft PRs with
+  evidence artifacts.
+- Playwright E2E package refreshed to the latest compatible `@playwright/test`
+  release and lockfile added for reproducible browser smoke runs.
+- Mapper/Sprint artifacts refreshed so LLM-assisted runs can load the current
+  project context and sprint retrospectives from versioned files.
+
 ## 1.1.4 - 2026-05-18
 - Sprint 8 hardening — auth recovery delivery: added a transactional `Mailer` abstraction with `resend` and local `log` drivers, wired `POST /api/auth/forgot-password` to real email delivery in production, and exposed `data.debug.code` only for local/log smoke without ever logging the plaintext code.
 - unit testing foundation: added `composer.json`, `phpunit.xml.dist`, and a first PHPUnit suite covering `Jwt`, `Totp`, `PasswordPolicy`, `StoragePath`, and `RateLimit`.
