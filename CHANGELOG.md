@@ -7,6 +7,8 @@
 - DoD workflow: scoped Node coverage and Playwright evidence gates to PRs that
   touch UI/E2E surfaces, so documentation and SendSprint evidence-only PRs can
   pass the relevant checks.
+- DoD workflow: replaced the transient `npx commitlint` dependency with a
+  self-contained Conventional Commits title regex.
 
 ## 1.1.5 - 2026-05-31
 - Simplicio E2E validation: created terminal and visual GitHub issue flows for

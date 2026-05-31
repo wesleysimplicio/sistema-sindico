@@ -105,10 +105,10 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           set -euo pipefail
-          echo "$PR_TITLE" | npx --yes commitlint --extends @commitlint/config-conventional || {
+          if ! echo "$PR_TITLE" | grep -Eq '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9._-]+\))?!?: .+'; then
             echo "::error::Título do PR não segue Conventional Commits (ex: feat: ..., fix: ..., chore: ...)."
             exit 1
-          }
+          fi
 
       # Verifica se PR body referencia uma task (#NNN, task-NNN.md, etc.)
       - name: Check task reference in PR body
