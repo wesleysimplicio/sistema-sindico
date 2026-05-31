@@ -1,0 +1,53 @@
+{
+  "schema": "simplicio-project-map/v1",
+  "generatedAt": "2026-05-31T12:07:07.268Z",
+  "source": "simplicio-mapper+local-inspection",
+  "project": {
+    "name": "sistema-sindico",
+    "description": "",
+    "packageManager": ""
+  },
+  "git": {
+    "branch": "main",
+    "commit": "a58330a4f2aa1059bff94071b13913cea13ceb20",
+    "remote": "https://github.com/wesleysimplicio/sistema-sindico.git",
+    "dirty": true
+  },
+  "workspace": {
+    "mode": "single",
+    "packageCount": 1,
+    "packages": [
+      {
+        "path": "tests/e2e",
+        "name": "sistema-sindico-e2e",
+        "private": true,
+        "scripts": [
+          "test",
+          "test:headed",
+          "report"
+        ]
+      }
+    ]
+  },
+  "files": {
+    "trackedCount": 293,
+    "byExtension": {
+      ".toml": 2,
+      "<none>": 9,
+      ".example": 1,
+      ".md": 49,
+      ".yml": 8,
+      ".json": 6,
+      ".lock": 1,
+      ".php": 128,
+      ".sql": 14,
+      ".conf": 1,
+      ".sh": 5,
+      ".jpeg": 64,
+      ".dist": 1,
+      ".ts": 1,
+      ".css": 1,
+      ".js": 2
+    }
+  }
+}
