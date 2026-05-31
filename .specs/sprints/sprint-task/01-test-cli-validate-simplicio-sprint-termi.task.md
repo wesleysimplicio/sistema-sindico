@@ -11,26 +11,33 @@ source_key: 97
 
 ## Contexto
 
-## Simplicio terminal flow test
+## Simplicio Sprint terminal E2E
 
-Purpose: exercise `simplicio-sprint` end-to-end from a GitHub issue into a branch, local Simplicio dev-cli execution, evidence collection, and draft PR.
+Run this issue through `sendsprint run github` using the local Simplicio dev-cli.
 
-### Scope
-- Target repo: `wesleysimplicio/sistema-sindico`
-- Target file: `GOAL_RESULT.md`
-- Add a short dated evidence section titled exactly `Simplicio Sprint CLI E2E - terminal`.
-- Mention that the terminal flow imported a GitHub issue, moved the card to `In Progress`, ran local Simplicio dev-cli, collected evidence, and opened a draft PR.
-- Do not change application runtime behavior.
+Target file: docs/simplicio-sprint-terminal-flow.md
 
-### Acceptance criteria
-- `GOAL_RESULT.md` contains `Simplicio Sprint CLI E2E - terminal`.
-- Existing PHPUnit unit tests still pass when available.
-- The PR body includes SendSprint evidence.
+## Expected flow
 
-### Suggested validation
+- Import this GitHub issue into the sprint format.
+- Move the card/issue to `In Progress`.
+- Plan the work with the mapper/spec artifacts.
+- Execute development with local `simplicio-dev-cli`.
+- Use `dev-cli + simplicio-prompt + agents` as the default execution profile.
+- Move the card/issue to `In Review`.
+- Push the branch and attach evidence to a draft PR.
+
+## Acceptance criteria
+
+- `docs/simplicio-sprint-terminal-flow.md` exists.
+- The file contains `Simplicio Sprint CLI E2E - terminal`.
+- SendSprint evidence includes the grep validation command.
+- The PR remains draft and includes the generated evidence comment.
+
+## Validation command
+
 ```bash
-grep -q "Simplicio Sprint CLI E2E - terminal" GOAL_RESULT.md
-composer test:unit
+grep -q "Simplicio Sprint CLI E2E - terminal" docs/simplicio-sprint-terminal-flow.md
 ```
 
 Origin: https://github.com/wesleysimplicio/sistema-sindico/issues/97
