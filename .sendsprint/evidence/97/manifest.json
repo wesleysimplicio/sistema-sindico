@@ -1,0 +1,25 @@
+{
+  "artifacts": [
+    {
+      "id": "13c4c670073c89dd",
+      "kind": "unit",
+      "message": "exit 1",
+      "passed": false,
+      "path": "/Users/wesleysimplicio/Projetos/ai/sistema-sindico-wt-feature-97-test-cli-validate-simplicio-sprint-termi/.sendsprint/evidence/97/tests.log",
+      "status": "failed",
+      "title": "grep -q \"Simplicio Sprint CLI E2E - terminal\" GOAL_RESULT.md"
+    }
+  ],
+  "item_key": "97",
+  "review_feedback": [],
+  "schema": "sendsprint.evidence/v1",
+  "status": "failed",
+  "steps_completed": [
+    "evidence"
+  ],
+  "summary": {
+    "failed": 1,
+    "passed": 0,
+    "skipped": 0
+  }
+}
