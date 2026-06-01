@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.6 - 2026-06-01
+- Rebuilt the README as a multilingual, proof-first product page with language navigation, Docker quick start, ecosystem graph, Star History, and the Simplicio README globalization standard.
+- Added canonical translations under `READMEs/` for English, Portuguese, Spanish, Japanese, Korean, Simplified Chinese, Italian, French, Russian, Polish, Hindi, Arabic, Hebrew, Malay, and Indonesian.
+- Documented the mapper metadata mismatch discovered in this run: `.starter-meta.json` still says `dotnet` while the real stack is PHP 8.2 + MySQL.
+
 ## 1.1.5 - 2026-05-31
 - Simplicio E2E validation: created terminal and visual GitHub issue flows for
   `simplicio-sprint` and `Simplicio-code`, both ending in draft PRs with

@@ -1,8 +1,8 @@
 <h1 align="center">Sistema Sindico</h1>
 
 <p align="center">
-  <strong>Sistema de gestão condominial em PHP 8.2 + MySQL com painel administrativo server-rendered e API REST pronta para app mobile.</strong><br />
-  <em>Os comandos ficam em inglês para poder copiar exatamente.</em>
+  <strong>PHP 8.2 + MySQL のマンション管理システムです。サーバーレンダリング管理画面とモバイル向け REST API を備えています。</strong><br />
+  <em>コマンドはそのままコピーできるよう英語で記載しています。</em>
 </p>
 
 <p align="center">
@@ -12,18 +12,18 @@
 </p>
 
 <p align="center">
-<a href="README.md">English</a> | <a href="READMEs/README.pt-BR.md">Português</a> | <a href="READMEs/README.es-ES.md">Español</a> | <a href="READMEs/README.ja-JP.md">日本語</a> | <a href="READMEs/README.ko-KR.md">한국어</a> | <a href="READMEs/README.zh-CN.md">简体中文</a> | <a href="READMEs/README.it-IT.md">Italiano</a> | <a href="READMEs/README.fr-FR.md">Français</a> | <a href="READMEs/README.ru-RU.md">Русский</a> | <a href="READMEs/README.pl-PL.md">Polski</a> | <a href="READMEs/README.hi-IN.md">हिन्दी</a> | <a href="READMEs/README.ar-SA.md">العربية</a> | <a href="READMEs/README.he-IL.md">עברית</a> | <a href="READMEs/README.ms-MY.md">Bahasa Melayu</a> | <a href="READMEs/README.id-ID.md">Bahasa Indonesia</a>
+<a href="../README.md">English</a> | <a href="README.pt-BR.md">Português</a> | <a href="README.es-ES.md">Español</a> | <a href="README.ja-JP.md">日本語</a> | <a href="README.ko-KR.md">한국어</a> | <a href="README.zh-CN.md">简体中文</a> | <a href="README.it-IT.md">Italiano</a> | <a href="README.fr-FR.md">Français</a> | <a href="README.ru-RU.md">Русский</a> | <a href="README.pl-PL.md">Polski</a> | <a href="README.hi-IN.md">हिन्दी</a> | <a href="README.ar-SA.md">العربية</a> | <a href="README.he-IL.md">עברית</a> | <a href="README.ms-MY.md">Bahasa Melayu</a> | <a href="README.id-ID.md">Bahasa Indonesia</a>
 </p>
 
 
 
 ---
 
-## Resumo direto
+## 短い概要
 
-Sistema de gestão condominial em PHP 8.2 + MySQL com painel administrativo server-rendered e API REST pronta para app mobile.
+PHP 8.2 + MySQL のマンション管理システムです。サーバーレンダリング管理画面とモバイル向け REST API を備えています。
 
-## Começo rápido
+## クイックスタート
 
 ```bash
 cp .env.example .env
@@ -31,23 +31,23 @@ docker compose up -d --build
 curl -s http://127.0.0.1:8000/api/health
 ```
 
-## O que faz
+## できること
 
 - Session-based admin area for sindico/admin roles.
 - JWT API prepared for residents, gate staff and future mobile clients.
 - Tenant safety through condominium_id scoped domain tables.
 - Docker onboarding with MySQL seed and local mail log defaults.
 
-## Por que este README foi feito para ganhar atenção
+## 注目される README にした理由
 
-- promessa clara na primeira tela
-- links de idioma antes do install
-- badges e hero visual para confiança imediata
-- quick start copiável
-- seção de prova antes de detalhes longos
-- gráfico de estrelas para social proof
+- 最初の画面で価値を明確に伝える
+- インストール前に言語リンクを置く
+- バッジと hero 画像で信頼を作る
+- コピーできる quick start
+- 長い説明より先に検証を置く
+- スター履歴で社会的証明を見せる
 
-## Como funciona
+## 仕組み
 
 ```mermaid
 flowchart LR
@@ -62,26 +62,26 @@ tests, docs, screenshots"]
 delivery loop"]
 ```
 
-## Prova e validação
+## 証拠と検証
 
 - PHPUnit, Postman/Newman and Playwright flows exist for regression.
 - Changelog records security, rate limit, Docker and E2E hardening.
 - Mapper failed on this repo in the current run because .starter-meta.json says dotnet while the real stack is PHP; README now documents the true stack.
 
-## Ecossistema Simplicio
+## Simplicio エコシステム
 
 - [simplicio-mapper](https://github.com/wesleysimplicio/simplicio-mapper) supplies repo context before interpretation.
 - [simplicio-cli](https://github.com/wesleysimplicio/simplicio-dev-cli) executes focused code tasks with verification.
 - [simplicio-prompt](https://github.com/wesleysimplicio/simplicio-prompt) provides fan-out and consensus runtime patterns.
 - [simplicio-sprint](https://github.com/wesleysimplicio/simplicio-sprint) turns cards into draft PR delivery loops.
 
-## Padrão de documentação
+## ドキュメント標準
 
-- [AGENTS.md](AGENTS.md)
-- [CHANGELOG.md](CHANGELOG.md)
-- [docs/readme-globalization-standard.md](docs/readme-globalization-standard.md)
+- [AGENTS.md](../AGENTS.md)
+- [CHANGELOG.md](../CHANGELOG.md)
+- [docs/readme-globalization-standard.md](../docs/readme-globalization-standard.md)
 
-## Histórico de estrelas
+## スター履歴
 
 <a href="https://www.star-history.com/#wesleysimplicio/sistema-sindico&Date">
   <picture>
@@ -91,6 +91,6 @@ delivery loop"]
   </picture>
 </a>
 
-## Licença
+## ライセンス
 
 See the repository license and distribution notes before production use.

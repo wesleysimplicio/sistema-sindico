@@ -1,8 +1,8 @@
 <h1 align="center">Sistema Sindico</h1>
 
 <p align="center">
-  <strong>Sistema de gestão condominial em PHP 8.2 + MySQL com painel administrativo server-rendered e API REST pronta para app mobile.</strong><br />
-  <em>Os comandos ficam em inglês para poder copiar exatamente.</em>
+  <strong>PHP 8.2 + MySQL condominium management system जिसमें server-rendered admin panel और mobile-ready REST API है.</strong><br />
+  <em>कमांड अंग्रेज़ी में रखे गए हैं ताकि उन्हें ठीक से कॉपी किया जा सके।</em>
 </p>
 
 <p align="center">
@@ -12,18 +12,18 @@
 </p>
 
 <p align="center">
-<a href="README.md">English</a> | <a href="READMEs/README.pt-BR.md">Português</a> | <a href="READMEs/README.es-ES.md">Español</a> | <a href="READMEs/README.ja-JP.md">日本語</a> | <a href="READMEs/README.ko-KR.md">한국어</a> | <a href="READMEs/README.zh-CN.md">简体中文</a> | <a href="READMEs/README.it-IT.md">Italiano</a> | <a href="READMEs/README.fr-FR.md">Français</a> | <a href="READMEs/README.ru-RU.md">Русский</a> | <a href="READMEs/README.pl-PL.md">Polski</a> | <a href="READMEs/README.hi-IN.md">हिन्दी</a> | <a href="READMEs/README.ar-SA.md">العربية</a> | <a href="READMEs/README.he-IL.md">עברית</a> | <a href="READMEs/README.ms-MY.md">Bahasa Melayu</a> | <a href="READMEs/README.id-ID.md">Bahasa Indonesia</a>
+<a href="../README.md">English</a> | <a href="README.pt-BR.md">Português</a> | <a href="README.es-ES.md">Español</a> | <a href="README.ja-JP.md">日本語</a> | <a href="README.ko-KR.md">한국어</a> | <a href="README.zh-CN.md">简体中文</a> | <a href="README.it-IT.md">Italiano</a> | <a href="README.fr-FR.md">Français</a> | <a href="README.ru-RU.md">Русский</a> | <a href="README.pl-PL.md">Polski</a> | <a href="README.hi-IN.md">हिन्दी</a> | <a href="README.ar-SA.md">العربية</a> | <a href="README.he-IL.md">עברית</a> | <a href="README.ms-MY.md">Bahasa Melayu</a> | <a href="README.id-ID.md">Bahasa Indonesia</a>
 </p>
 
 
 
 ---
 
-## Resumo direto
+## संक्षेप में
 
-Sistema de gestão condominial em PHP 8.2 + MySQL com painel administrativo server-rendered e API REST pronta para app mobile.
+PHP 8.2 + MySQL condominium management system जिसमें server-rendered admin panel और mobile-ready REST API है.
 
-## Começo rápido
+## त्वरित शुरुआत
 
 ```bash
 cp .env.example .env
@@ -31,23 +31,23 @@ docker compose up -d --build
 curl -s http://127.0.0.1:8000/api/health
 ```
 
-## O que faz
+## यह क्या करता है
 
 - Session-based admin area for sindico/admin roles.
 - JWT API prepared for residents, gate staff and future mobile clients.
 - Tenant safety through condominium_id scoped domain tables.
 - Docker onboarding with MySQL seed and local mail log defaults.
 
-## Por que este README foi feito para ganhar atenção
+## यह README ध्यान खींचने के लिए क्यों बनाया गया है
 
-- promessa clara na primeira tela
-- links de idioma antes do install
-- badges e hero visual para confiança imediata
-- quick start copiável
-- seção de prova antes de detalhes longos
-- gráfico de estrelas para social proof
+- पहली स्क्रीन पर साफ़ promise
+- install से पहले language links
+- badges और hero से trust
+- copy-ready quick start
+- लंबे details से पहले proof
+- star history से social proof
 
-## Como funciona
+## यह कैसे काम करता है
 
 ```mermaid
 flowchart LR
@@ -62,26 +62,26 @@ tests, docs, screenshots"]
 delivery loop"]
 ```
 
-## Prova e validação
+## प्रमाण और सत्यापन
 
 - PHPUnit, Postman/Newman and Playwright flows exist for regression.
 - Changelog records security, rate limit, Docker and E2E hardening.
 - Mapper failed on this repo in the current run because .starter-meta.json says dotnet while the real stack is PHP; README now documents the true stack.
 
-## Ecossistema Simplicio
+## Simplicio इकोसिस्टम
 
 - [simplicio-mapper](https://github.com/wesleysimplicio/simplicio-mapper) supplies repo context before interpretation.
 - [simplicio-cli](https://github.com/wesleysimplicio/simplicio-dev-cli) executes focused code tasks with verification.
 - [simplicio-prompt](https://github.com/wesleysimplicio/simplicio-prompt) provides fan-out and consensus runtime patterns.
 - [simplicio-sprint](https://github.com/wesleysimplicio/simplicio-sprint) turns cards into draft PR delivery loops.
 
-## Padrão de documentação
+## दस्तावेज़ मानक
 
-- [AGENTS.md](AGENTS.md)
-- [CHANGELOG.md](CHANGELOG.md)
-- [docs/readme-globalization-standard.md](docs/readme-globalization-standard.md)
+- [AGENTS.md](../AGENTS.md)
+- [CHANGELOG.md](../CHANGELOG.md)
+- [docs/readme-globalization-standard.md](../docs/readme-globalization-standard.md)
 
-## Histórico de estrelas
+## स्टार इतिहास
 
 <a href="https://www.star-history.com/#wesleysimplicio/sistema-sindico&Date">
   <picture>
@@ -91,6 +91,6 @@ delivery loop"]
   </picture>
 </a>
 
-## Licença
+## लाइसेंस
 
 See the repository license and distribution notes before production use.
