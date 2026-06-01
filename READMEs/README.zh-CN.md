@@ -23,6 +23,13 @@
 
 PHP 8.2 + MySQL 公寓管理系统，包含服务端渲染管理面板和面向移动端的 REST API。
 
+## 项目 DNA
+
+此本地化页面保留快速路径。恢复后的完整技术指南位于根 README 中，用来保留项目原本的表达和运行细节。
+
+- Full restored guide: [../README.md](../README.md)
+- Local project note: sistema-sindico is the real product anchor in this workspace: condominium management in PHP/MySQL with roles, payments, reservations, documents, and operational workflows. The README should feel like software someone can run and maintain, not only a branded shell, so the original setup and domain guide is restored.
+
 ## 快速开始
 
 ```bash

@@ -23,6 +23,13 @@
 
 PHP 8.2 + MySQL のマンション管理システムです。サーバーレンダリング管理画面とモバイル向け REST API を備えています。
 
+## プロジェクトのDNA
+
+このローカライズ版は最短導線を保ちます。復元された詳細ガイドはルート README にあり、プロジェクト本来の声と運用情報を残します。
+
+- Full restored guide: [../README.md](../README.md)
+- Local project note: sistema-sindico is the real product anchor in this workspace: condominium management in PHP/MySQL with roles, payments, reservations, documents, and operational workflows. The README should feel like software someone can run and maintain, not only a branded shell, so the original setup and domain guide is restored.
+
 ## クイックスタート
 
 ```bash

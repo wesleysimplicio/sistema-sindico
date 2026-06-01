@@ -23,6 +23,13 @@
 
 מערכת ניהול ועד בית ב-PHP 8.2 + MySQL עם פאנל ניהול server-rendered ו-REST API מוכן למובייל.
 
+## DNA הפרויקט
+
+העמוד המקומי שומר על הדרך המהירה. המדריך הטכני המשוחזר נמצא ב-README הראשי כדי לשמור על הקול המקורי ופרטי ההפעלה של הפרויקט.
+
+- Full restored guide: [../README.md](../README.md)
+- Local project note: sistema-sindico is the real product anchor in this workspace: condominium management in PHP/MySQL with roles, payments, reservations, documents, and operational workflows. The README should feel like software someone can run and maintain, not only a branded shell, so the original setup and domain guide is restored.
+
 ## התחלה מהירה
 
 ```bash

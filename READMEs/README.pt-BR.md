@@ -94,3 +94,10 @@ delivery loop"]
 ## Licença
 
 See the repository license and distribution notes before production use.
+
+## DNA do projeto
+
+Esta pagina localizada preserva o caminho rapido. O guia tecnico restaurado fica no README principal para manter a voz original e os detalhes operacionais do projeto.
+
+- Full restored guide: [../README.pt-BR.md](../README.pt-BR.md)
+- Local project note: sistema-sindico is the real product anchor in this workspace: condominium management in PHP/MySQL with roles, payments, reservations, documents, and operational workflows. The README should feel like software someone can run and maintain, not only a branded shell, so the original setup and domain guide is restored.

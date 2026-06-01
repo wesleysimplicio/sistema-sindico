@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.7 - 2026-06-01
+- Restored the original product/domain README guide below the new multilingual landing page so setup, endpoint, security, performance, and ER documentation remain visible.
+- Added Project DNA notes to localized READMEs and updated the shared standard to make future README refreshes additive instead of replacing operational memory.
+
 ## 1.1.6 - 2026-06-01
 - Rebuilt the README as a multilingual, proof-first product page with language navigation, Docker quick start, ecosystem graph, Star History, and the Simplicio README globalization standard.
 - Added canonical translations under `READMEs/` for English, Portuguese, Spanish, Japanese, Korean, Simplified Chinese, Italian, French, Russian, Polish, Hindi, Arabic, Hebrew, Malay, and Indonesian.

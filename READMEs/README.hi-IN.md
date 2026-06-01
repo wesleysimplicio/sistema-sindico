@@ -23,6 +23,13 @@
 
 PHP 8.2 + MySQL condominium management system जिसमें server-rendered admin panel और mobile-ready REST API है.
 
+## प्रोजेक्ट DNA
+
+यह localized पेज fast path रखता है। पूरा restored technical guide root README में है ताकि project की original voice और operating detail बनी रहे।
+
+- Full restored guide: [../README.md](../README.md)
+- Local project note: sistema-sindico is the real product anchor in this workspace: condominium management in PHP/MySQL with roles, payments, reservations, documents, and operational workflows. The README should feel like software someone can run and maintain, not only a branded shell, so the original setup and domain guide is restored.
+
 ## त्वरित शुरुआत
 
 ```bash

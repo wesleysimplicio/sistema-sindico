@@ -23,6 +23,13 @@
 
 Sistema de gestión de condominios en PHP 8.2 + MySQL con panel administrativo server-rendered y API REST lista para app móvil.
 
+## ADN del proyecto
+
+Esta pagina localizada mantiene el camino rapido. La guia tecnica restaurada vive en el README principal para conservar la voz original y los detalles operativos del proyecto.
+
+- Full restored guide: [../README.md](../README.md)
+- Local project note: sistema-sindico is the real product anchor in this workspace: condominium management in PHP/MySQL with roles, payments, reservations, documents, and operational workflows. The README should feel like software someone can run and maintain, not only a branded shell, so the original setup and domain guide is restored.
+
 ## Inicio rápido
 
 ```bash
