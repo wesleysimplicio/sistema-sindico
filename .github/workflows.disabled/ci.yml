@@ -1,0 +1,278 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php-lint:
+    name: PHP syntax lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.2', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: PHP -l on src/public/routes/templates
+        run: |
+          set -euo pipefail
+          find src public routes templates -type f -name '*.php' -print0 \
+            | xargs -0 -n1 -P4 php -l > /tmp/lint.log 2>&1 \
+            || (cat /tmp/lint.log && exit 1)
+          echo "PHP lint OK"
+
+      - name: Composer install (if composer.json present)
+        if: hashFiles('composer.json') != ''
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Composer audit
+        if: hashFiles('composer.lock') != ''
+        run: composer audit --no-interaction || true
+
+  static-analysis:
+    name: Static analysis (PHPStan / PHPCS)
+    runs-on: ubuntu-latest
+    needs: php-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect composer.json
+        id: detect
+        run: |
+          if [ -f composer.json ]; then
+            echo "has_composer=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_composer=false" >> "$GITHUB_OUTPUT"
+            echo "no composer.json — skipping static analysis"
+          fi
+
+      - uses: shivammathur/setup-php@v2
+        if: steps.detect.outputs.has_composer == 'true'
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer:v2, phpstan, phpcs
+
+      - name: Composer install
+        if: steps.detect.outputs.has_composer == 'true'
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: PHPStan
+        if: steps.detect.outputs.has_composer == 'true' && hashFiles('phpstan.neon*') != ''
+        run: vendor/bin/phpstan analyse --no-progress --error-format=github
+
+      - name: PHPCS
+        if: steps.detect.outputs.has_composer == 'true' && hashFiles('phpcs.xml*') != ''
+        run: vendor/bin/phpcs --report=full
+
+  frontend-checks:
+    name: Frontend lint (JS/CSS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect package.json
+        id: detect
+        run: |
+          if [ -f package.json ]; then
+            echo "has_pkg=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_pkg=false" >> "$GITHUB_OUTPUT"
+            echo "no package.json — skipping frontend checks"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.detect.outputs.has_pkg == 'true'
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install
+        if: steps.detect.outputs.has_pkg == 'true'
+        run: npm ci || npm install
+
+      - name: Lint
+        if: steps.detect.outputs.has_pkg == 'true'
+        run: |
+          if npm run | grep -qE '^\s+lint'; then npm run lint; else echo "no lint script"; fi
+
+      - name: Build
+        if: steps.detect.outputs.has_pkg == 'true'
+        run: |
+          if npm run | grep -qE '^\s+build'; then npm run build; else echo "no build script"; fi
+
+  docker-smoke:
+    name: Docker smoke
+    runs-on: ubuntu-latest
+    needs: php-lint
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and start Docker stack
+        run: docker compose up -d --build
+
+      - name: Wait for health endpoint
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/api/health | grep -q '"status":"ok"'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Docker stack did not expose /api/health in time."
+          docker compose ps
+          docker compose logs --no-color
+          exit 1
+
+      - name: Verify seeded admin login
+        run: |
+          set -euo pipefail
+          body="$(curl -fsS -X POST http://127.0.0.1:8000/api/auth/login \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"admin@sindico.local","password":"senha123"}')"
+          echo "$body" | grep -q '"token"' || {
+            echo "::error::Seeded admin login failed in Docker smoke."
+            echo "$body"
+            exit 1
+          }
+
+      - name: Show Docker logs on failure
+        if: failure()
+        run: |
+          docker compose ps
+          docker compose logs --no-color
+
+      - name: Tear down Docker stack
+        if: always()
+        run: docker compose down -v
+
+  auth-recovery-smoke:
+    name: Auth recovery smoke
+    runs-on: ubuntu-latest
+    needs: docker-smoke
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build and start Docker stack
+        run: docker compose up -d --build
+
+      - name: Wait for health endpoint
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/api/health | grep -q '"status":"ok"'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Docker stack did not expose /api/health in time."
+          docker compose ps
+          docker compose logs --no-color
+          exit 1
+
+      - name: Newman auth recovery
+        run: npx -y newman run tests/api/auth-recovery.postman_collection.json --env-var baseUrl=http://127.0.0.1:8000
+
+      - name: Show Docker logs on failure
+        if: failure()
+        run: |
+          docker compose ps
+          docker compose logs --no-color
+
+      - name: Tear down Docker stack
+        if: always()
+        run: docker compose down -v
+
+  unit-phpunit:
+    name: Unit tests (PHPUnit)
+    runs-on: ubuntu-latest
+    needs: php-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Composer install
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: PHPUnit
+        run: vendor/bin/phpunit --configuration phpunit.xml.dist --testdox --coverage-text
+
+  rate-limit-smoke:
+    name: Rate limit smoke (${{ matrix.driver }})
+    runs-on: ubuntu-latest
+    needs: docker-smoke
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        driver: [mysql, redis]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate rate limit driver
+        run: bash scripts/validate-rate-limit-driver.sh ${{ matrix.driver }}
+
+  build-release:
+    name: Build HostGator release artifact
+    runs-on: ubuntu-latest
+    needs: php-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Build release
+        run: bash scripts/build-hostgator-release.sh
+
+      - name: Verify release
+        run: bash scripts/verify-hostgator-release.sh
+
+      - name: Upload manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: hostgator-release-manifest-${{ github.sha }}
+          path: .deploy-build/hostgator-release.manifest.txt
+          if-no-files-found: warn
+          retention-days: 14
