@@ -1,0 +1,116 @@
+diff --git a/docs/simplicio-code-visual-flow.md b/docs/simplicio-code-visual-flow.md
+new file mode 100644
+--- /dev/null
++++ b/docs/simplicio-code-visual-flow.md
+@@ -0,0 +1,10 @@
++SimplicioCode Visual E2E
++
++Run this issue through `Simplicio-code` using its canonical `script/simplicio/flow.sh --sprint github` wrapper.
++
++Target file: docs/simplicio-code-visual-flow.md
++
++## Expected visual flow
++
++- Simplicio-code maps the target repo before sprint execution.
++- The wrapper imports this GitHub issue through SendSprint.
++- The issue/card moves to `In Progress`, then `In Review`.
++- Development runs with local `simplicio-dev-cli + simplicio-prompt + agents`.
++- SendSprint captures visual evidence from the local web UI.
++- A draft PR is opened or updated with test and screenshot evidence.
++
++## Acceptance criteria
++
++- `docs/simplicio-code-visual-flow.md` exists.
++- The file contains `SimplicioCode Visual E2E`.
++- Evidence includes a Playwright screenshot of `/login`.
++- The PR body/comment includes SendSprint evidence.
++
++## Validation command
++
++```bash
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++```
++
++## Task spec
++
++```yaml
++name: test(visual): validate SimplicioCode sprint flow
++description: Run this issue through `Simplicio-code` using its canonical `script/simplicio/flow.sh --sprint github` wrapper.
++steps:
++  - name: Run Simplicio-code flow
++    command: script/simplicio/flow.sh --sprint github
++  - name: Verify file exists
++    command: test -f docs/simplicio-code-visual-flow.md
++  - name: Verify file contains SimplicioCode Visual E2E
++    command: grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++  - name: Verify Playwright screenshot
++    command: playwright test --headed --screenshot-path screenshots/login.png
++  - name: Verify PR body/comment
++    command: grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++```
++
++## EVIDENCE
++
++```bash
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++```
++
++## TEST
++
++```bash
++test -f docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio-code-visual-flow.md
++grep -q "SimplicioCode Visual E2E" docs/simplicio

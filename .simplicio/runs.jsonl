@@ -1,0 +1,1 @@
+{"ts":"2026-05-31T12:09:20Z","model":"local-llama/default","provider":"claude","prompt_variant":"default","mode":"pipeline","attempt":1,"ok":true,"failure_class":"none","tokens_estimated":1476,"target":"docs/simplicio-code-visual-flow.md","stack":"php-vanilla"}
