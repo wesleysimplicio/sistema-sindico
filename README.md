@@ -1,10 +1,101 @@
-# Sistema Sindico
+<h1 align="center">Sistema Sindico</h1>
+
+<p align="center">
+  <strong>A PHP 8.2 + MySQL condominium management system with a server-rendered admin panel and mobile-ready REST API.</strong><br />
+  <em>Commands stay in English so they can be copied exactly.</em>
+</p>
+
+<p align="center">
+<a href="https://github.com/wesleysimplicio/sistema-sindico/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/wesleysimplicio/sistema-sindico?style=flat-square" /></a>
+<img alt="PHP 8.2" src="https://img.shields.io/badge/PHP-8.2-777bb4?style=flat-square" />
+<img alt="MySQL 8" src="https://img.shields.io/badge/MySQL-8-4479a1?style=flat-square" />
+</p>
+
+<p align="center">
+<a href="README.md">English</a> | <a href="READMEs/README.pt-BR.md">Português</a> | <a href="READMEs/README.es-ES.md">Español</a> | <a href="READMEs/README.ja-JP.md">日本語</a> | <a href="READMEs/README.ko-KR.md">한국어</a> | <a href="READMEs/README.zh-CN.md">简体中文</a> | <a href="READMEs/README.it-IT.md">Italiano</a> | <a href="READMEs/README.fr-FR.md">Français</a> | <a href="READMEs/README.ru-RU.md">Русский</a> | <a href="READMEs/README.pl-PL.md">Polski</a> | <a href="READMEs/README.hi-IN.md">हिन्दी</a> | <a href="READMEs/README.ar-SA.md">العربية</a> | <a href="READMEs/README.he-IL.md">עברית</a> | <a href="READMEs/README.ms-MY.md">Bahasa Melayu</a> | <a href="READMEs/README.id-ID.md">Bahasa Indonesia</a>
+</p>
+
+
+
+---
+
+## The short version
+
+A PHP 8.2 + MySQL condominium management system with a server-rendered admin panel and mobile-ready REST API.
+
+## Project DNA
+
+sistema-sindico is the real product anchor in this workspace: condominium management in PHP/MySQL with roles, payments, reservations, documents, and operational workflows. The README should feel like software someone can run and maintain, not only a branded shell, so the original setup and domain guide is restored.
+
+The new first screen is the doorway; the restored guide below is the workshop. This README should help a stranger understand the promise quickly and still give an operator enough depth to run, validate, and extend the project.
+
+## Quick Start
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+curl -s http://127.0.0.1:8000/api/health
+```
+
+## What it does
+
+- Session-based admin area for sindico/admin roles.
+- JWT API prepared for residents, gate staff and future mobile clients.
+- Tenant safety through condominium_id scoped domain tables.
+- Docker onboarding with MySQL seed and local mail log defaults.
+
+## Why this README is built to earn attention
+
+- clear first-screen promise
+- language links before installation
+- badges and a visual hero for fast trust
+- copy-ready quick start
+- proof before long reference material
+- star history for social proof
+
+## How it works
+
+```mermaid
+flowchart LR
+  mapper["simplicio-mapper
+repo context"] --> current["Sistema Sindico
+this project"]
+  prompt["simplicio-prompt
+reasoning runtime"] --> current
+  current --> evidence["validated evidence
+tests, docs, screenshots"]
+  current --> sprint["simplicio-sprint
+delivery loop"]
+```
+
+## Proof and validation
+
+- PHPUnit, Postman/Newman and Playwright flows exist for regression.
+- Changelog records security, rate limit, Docker and E2E hardening.
+- Mapper failed on this repo in the current run because .starter-meta.json says dotnet while the real stack is PHP; README now documents the true stack.
+
+## Simplicio ecosystem
+
+- [simplicio-mapper](https://github.com/wesleysimplicio/simplicio-mapper) supplies repo context before interpretation.
+- [simplicio-cli](https://github.com/wesleysimplicio/simplicio-dev-cli) executes focused code tasks with verification.
+- [simplicio-prompt](https://github.com/wesleysimplicio/simplicio-prompt) provides fan-out and consensus runtime patterns.
+- [simplicio-sprint](https://github.com/wesleysimplicio/simplicio-sprint) turns cards into draft PR delivery loops.
+
+## Documentation standard
+
+- [AGENTS.md](AGENTS.md)
+- [CHANGELOG.md](CHANGELOG.md)
+- [docs/readme-globalization-standard.md](docs/readme-globalization-standard.md)
+
+## Original Field Guide
+
+The section below restores the project-specific README material that existed before the globalization pass. Keep this substance when refreshing the top-level narrative: add polish, do not erase operational memory.
 
 Condominium management system in **PHP 8.2 + MySQL 8**, with a server-rendered admin panel and mobile-ready REST endpoints under `/api`.
 
 PT-BR version: [README.pt-BR.md](README.pt-BR.md).
 
-## Features
+### Features
 
 - Session-based web admin (sindico/admin roles).
 - JWT-based JSON API for the future mobile app (residents/porteiros).
@@ -12,7 +103,7 @@ PT-BR version: [README.pt-BR.md](README.pt-BR.md).
 - Modules: condominiums, units, residents, notices, maintenance, payments, deliveries, visitors, common areas, bookings, documents, messages.
 - No framework dependency — minimal custom router, PDO repositories, custom HS256 JWT.
 
-## Stack
+### Stack
 
 - PHP 8.2+, PDO MySQL
 - MySQL 8 (InnoDB, utf8mb4)
@@ -20,7 +111,7 @@ PT-BR version: [README.pt-BR.md](README.pt-BR.md).
 - HS256 JWT (7-day TTL) for the API
 - Plain CSS in `public/assets/app.css`
 
-## Layout
+### Layout
 
 ```
 public/         entrypoint + static assets
@@ -35,12 +126,12 @@ database/       schema.sql + seed.sql
 docs/print/     UI references
 ```
 
-## Requirements
+### Requirements
 
 - PHP 8.2+ with `pdo_mysql`
 - MySQL 8+
 
-## Setup
+### Setup
 
 ```bash
 cp .env.example .env
@@ -56,7 +147,7 @@ Then open:
 - Web admin: <http://127.0.0.1:8000/login>
 - API health: <http://127.0.0.1:8000/api/health>
 
-## Setup via Docker
+### Setup via Docker
 
 ```bash
 docker compose up -d --build
@@ -84,20 +175,20 @@ docker compose down -v
 docker compose up -d --build
 ```
 
-## Transactional email
+### Transactional email
 
 - Production path: set `MAIL_DRIVER=resend`, `MAIL_API_KEY`, `MAIL_FROM`, and optional `MAIL_FROM_NAME`.
 - Local/CI path: keep `MAIL_DRIVER=log`; password-recovery smoke reads the one-time code from `data.debug.code`, but the plaintext is never written to logs.
 - SMS is explicitly postponed in this cycle; recovery currently ships with transactional email only.
 
-## Unit tests
+### Unit tests
 
 ```bash
 composer install
 vendor/bin/phpunit --configuration phpunit.xml.dist --testdox
 ```
 
-## Seeded credentials
+### Seeded credentials
 
 All seeded users use the password `senha123`.
 
@@ -108,11 +199,11 @@ All seeded users use the password `senha123`.
 | morador  | manoel@example.com             |
 | porteiro | portaria@sindico.local         |
 
-## REST API
+### REST API
 
 Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST /api/auth/login`. Responses follow `{ success, data, meta }`. Errors use `Response::error($msg, $status, $details, $code)` which emits `{ success: false, message, code, details }`.
 
-### Public (no auth)
+#### Public (no auth)
 
 | Method | Path                                      | Notes |
 |--------|-------------------------------------------|-------|
@@ -126,7 +217,7 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 | GET    | `/api/system/version`                     | `?platform=ios|android|web&current=` for force-update gate |
 | GET    | `/api/system/permissions`                 | pt-BR copy for client onboarding |
 
-### Auth & profile (Bearer)
+#### Auth & profile (Bearer)
 
 | Method | Path                              | Notes |
 |--------|-----------------------------------|-------|
@@ -140,7 +231,7 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 | POST   | `/api/memberships/select`         | switch active membership |
 | GET    | `/api/dashboard`                  | aggregated counters |
 
-### Condominium / units / residents
+#### Condominium / units / residents
 
 | Method | Path                                                   | Notes |
 |--------|--------------------------------------------------------|-------|
@@ -164,7 +255,7 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 | GET    | `/api/condominium/{c}/porter-notes`                    | |
 | POST   | `/api/condominium/{c}/porter-notes`                    | |
 
-### Notices, maintenance, payments
+#### Notices, maintenance, payments
 
 | Method | Path                                       | Notes |
 |--------|--------------------------------------------|-------|
@@ -187,7 +278,7 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 | GET    | `/api/payments/summary`                    | grouped totals |
 | PATCH  | `/api/payments/{id}/pay`                   | admin/sindico, tenant-scoped UPDATE |
 
-### Visitors, invitations, deliveries, bookings
+#### Visitors, invitations, deliveries, bookings
 
 | Method | Path                                       | Notes |
 |--------|--------------------------------------------|-------|
@@ -223,7 +314,7 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 | POST   | `/api/bookings`                            | conflict-checked |
 | PATCH  | `/api/bookings/{id}`                       | admin/sindico |
 
-### Documents & messages
+#### Documents & messages
 
 | Method | Path                                       | Notes |
 |--------|--------------------------------------------|-------|
@@ -241,7 +332,7 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 | POST   | `/api/messages`                            | |
 | PATCH  | `/api/messages/{id}/read`                  | |
 
-### Access control, cameras, gate, incidents
+#### Access control, cameras, gate, incidents
 
 | Method | Path                                       | Notes |
 |--------|--------------------------------------------|-------|
@@ -262,7 +353,7 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 | GET    | `/api/incident-types`                      | |
 | POST   | `/api/incident-types`                      | admin/sindico |
 
-### Notifications, devices, security, contact
+#### Notifications, devices, security, contact
 
 | Method | Path                                       | Notes |
 |--------|--------------------------------------------|-------|
@@ -286,7 +377,7 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 | GET    | `/api/contact-messages/{id}`               | auto-marks read |
 | PATCH  | `/api/contact-messages/{id}`               | `action=reply\|mark_read` |
 
-## Security posture
+### Security posture
 
 - **JWT** HS256 + `jti` claim; revocation via `api_tokens`. Secret rejected if shorter than 32 bytes (`Jwt::MIN_SECRET_BYTES`).
 - **Rate limiting** supports `RATE_LIMIT_DRIVER=mysql|redis`; MySQL remains default for HostGator, while Redis is optional for Docker/managed-cache environments. Returns the same `X-RateLimit-*` headers plus `429 + Retry-After`.
@@ -298,13 +389,13 @@ Authenticated endpoints expect `Authorization: Bearer <jwt>` obtained from `POST
 - **Password policy** ≥8 chars, lowercase/uppercase/digit; last-5 history blocked.
 - **2FA** TOTP RFC 6238 + ±1 window; login challenge gates session creation.
 
-## Performance posture
+### Performance posture
 
 - **Composite indexes** (`database/migrations/012_perf_indexes.sql`): `notices(condo,scope)`, `notices(condo,pinned,published_at)`, `notice_reads(user,notice)`, `payments(condo,due_date)`, `deliveries(condo,received_at)`, `visitors(condo,expected_at)`, `deliveries(unit,received_at)`, `visitors(unit,created_at)`, `users(condo,role)`.
 - **Bulk notifications** `NotificationRepository::pushBulk` issues one multi-row INSERT instead of N queries.
 - **Notice list** correlated subquery replaced by `LEFT JOIN notice_reads` exposing `(r.notice_id IS NOT NULL) AS is_read`.
 
-## Database ER (core)
+### Database ER (core)
 
 ```mermaid
 erDiagram
@@ -347,7 +438,7 @@ erDiagram
     gate_triggers ||--o{ gate_trigger_logs : logs
 ```
 
-## Smoke check
+### Smoke check
 
 ```bash
 find src public routes templates -name '*.php' -print0 | xargs -0 -n1 php -l
@@ -355,7 +446,7 @@ php -S 127.0.0.1:8000 -t public
 curl -s http://127.0.0.1:8000/api/health | jq
 ```
 
-## Automation: PR conflict resolver
+### Automation: PR conflict resolver
 
 Workflow [`resolve-conflicts.yml`](.github/workflows/resolve-conflicts.yml) merges the PR base branch into the PR head automatically.
 
@@ -374,10 +465,24 @@ Notes:
 - Uses the default `GITHUB_TOKEN` (no extra secrets).
 - Cross-repo PRs require *Allow edits by maintainers*.
 
-## Roadmap
+### Roadmap
 
 - File upload for documents/avatars
 - Real QR-code rendering
 - Push notifications channel
 - Mobile app (React Native or Flutter) consuming `/api`
 - Refine UI from `docs/print/` mockups
+
+## Star History
+
+<a href="https://www.star-history.com/#wesleysimplicio/sistema-sindico&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=wesleysimplicio/sistema-sindico&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=wesleysimplicio/sistema-sindico&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=wesleysimplicio/sistema-sindico&type=Date" />
+  </picture>
+</a>
+
+## License
+
+See the repository license and distribution notes before production use.

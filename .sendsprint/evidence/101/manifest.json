@@ -1,0 +1,33 @@
+{
+  "artifacts": [
+    {
+      "id": "d4613b8672c5170b",
+      "kind": "unit",
+      "message": "exit 0",
+      "passed": true,
+      "path": "/Users/wesleysimplicio/Projetos/ai/sistema-sindico-wt-feature-101-validate-simpliciocode-desktop-debug-vis/.sendsprint/evidence/101/tests.log",
+      "status": "passed",
+      "title": "grep -q \"SimplicioCode Desktop DEBUG E2E\" docs/simplicio-code-desktop-debug-flow.md"
+    },
+    {
+      "id": "c8e7e4d3ee710203",
+      "kind": "screenshot",
+      "passed": true,
+      "path": "/Users/wesleysimplicio/Projetos/ai/sistema-sindico-wt-feature-101-validate-simpliciocode-desktop-debug-vis/.sendsprint/evidence/101/screen.png",
+      "status": "passed",
+      "title": "http://127.0.0.1:8000/login"
+    }
+  ],
+  "item_key": "101",
+  "review_feedback": [],
+  "schema": "sendsprint.evidence/v1",
+  "status": "passed",
+  "steps_completed": [
+    "evidence"
+  ],
+  "summary": {
+    "failed": 0,
+    "passed": 2,
+    "skipped": 0
+  }
+}
