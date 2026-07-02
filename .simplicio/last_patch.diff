@@ -1,0 +1,31 @@
+diff --git a/docs/simplicio-sprint-terminal-flow.md b/docs/simplicio-sprint-terminal-flow.md
+new file mode 100644
+--- /dev/null
++++ b/docs/simplicio-sprint-terminal-flow.md
+@@ -0,0 +1,10 @@
++Simplicio Sprint CLI E2E - terminal
++
++This issue is about validating the terminal flow of the Simplicio Sprint CLI.
++
++## Expected flow
++
++1. Import this GitHub issue into the sprint format.
++2. Move the card/issue to `In Progress`.
++3. Plan the work with the mapper/spec artifacts.
++4. Execute development with local `simplicio-dev-cli`.
++5. Use `dev-cli + simplicio-prompt + agents` as the default execution profile.
++6. Move the card/issue to `In Review`.
++7. Push the branch and attach evidence to a draft PR.
++
++## Acceptance criteria
++
++1. `docs/simplicio-sprint-terminal-flow.md` exists.
++2. The file contains `Simplicio Sprint CLI E2E - terminal`.
++3. SendSprint evidence includes the grep validation command.
++4. The PR remains draft and includes the generated evidence comment.
++
++## Validation command
++
++```bash
++grep -q "Simplicio Sprint CLI E2E - terminal" docs/simplicio-sprint-terminal-flow.md
++```

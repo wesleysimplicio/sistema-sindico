@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.8 - 2026-07-01
+- CI gates: kept the PHP 8.1 syntax lint matrix while skipping Composer dev-tool
+  installation on PHP 8.1, because the locked PHPUnit 11 toolchain requires
+  PHP >= 8.2.
+- DoD workflow: scoped Node coverage and Playwright evidence gates to PRs that
+  touch UI/E2E surfaces, so documentation and SendSprint evidence-only PRs can
+  pass the relevant checks.
+- DoD workflow: replaced the transient `npx commitlint` dependency with a
+  self-contained Conventional Commits title regex.
+
 ## 1.1.7 - 2026-06-01
 - Restored the original product/domain README guide below the new multilingual landing page so setup, endpoint, security, performance, and ER documentation remain visible.
 - Added Project DNA notes to localized READMEs and updated the shared standard to make future README refreshes additive instead of replacing operational memory.
